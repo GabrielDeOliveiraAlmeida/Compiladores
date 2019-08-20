@@ -9,8 +9,9 @@ import java.util.HashMap;
 import java.util.regex.Pattern;
 
 /**
- *
- * @author gabriel
+ * 
+ * Adaptado de
+ * https://github.com/evernife/Compiladores-Atividades/blob/master/src/main/java/br/com/finalcraft/unesp/compiladores/atividades/logical/lexema/LexemaType.java 
  */
 public enum Classificacao {
     CARACTER_INVALIDO("[@|#|&|¨|!|?|.]"),
