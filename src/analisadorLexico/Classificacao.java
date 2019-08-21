@@ -5,7 +5,6 @@
  */
 package analisadorLexico;
 
-import java.util.HashMap;
 import java.util.regex.Pattern;
 
 /**
@@ -14,8 +13,8 @@ import java.util.regex.Pattern;
  * https://github.com/evernife/Compiladores-Atividades/blob/master/src/main/java/br/com/finalcraft/unesp/compiladores/atividades/logical/lexema/LexemaType.java 
  */
 public enum Classificacao {
-    CARACTER_INVALIDO("[@|#|&|¨|!|?|.]"),
-    INTEIRO("0|[1-9][0-9]*"),
+    CARACTER_INVALIDO("[@|#|&|¨|!|?|.|,]"),
+    INTEIRO("(0|[1-9][0-9]*)"),
     COM_VIRGULA("(0|([1-9][0-9]*))(\\.[0-9]+)?$"),
     IDENTIFICADOR("[a-z|A-Z][a-z|A-Z|0-9|_]*"),
     PALAVRA_RESERVDA("if|then|else|begin|end|while|do|program"
@@ -26,12 +25,41 @@ public enum Classificacao {
     DELIMITADOR(",|;|:|\\(|\\)|\\[|\\]"),
     BRANCO(" |\t|\r"),
     PULA_LINHA("\n"),
-    DESCONHECIDO(Pattern.quote(""));
+    DESCONHECIDO(Pattern.quote("")),
     
+    PALAVRA_RESERVADA_IF("if"),
+    PALAVRA_RESERVADA_THEN("then"),
+    PALAVRA_RESERVADA_ELSE("else"),
+    PALAVRA_RESERVADA_BEGIN("begin"),
+    PALAVRA_RESERVADA_END("end"),
+    PALAVRA_RESERVADA_WHILE("while"),
+    PALAVRA_RESERVADA_DO("do"),
+    PALAVRA_RESERVADA_PROGAM("program"),
+    PALAVRA_RESERVADA_PROCEDURE("procedure"),
+    PALAVRA_RESERVADA_TRUE("true"),
+    PALAVRA_RESERVADA_FALSE("false"),
+    PALAVRA_RESERVADA_CHAR("char"),
+    PALAVRA_RESERVADA_INTEGER("integer"),
+    PALAVRA_RESERVADA_BOOLEAN("boolean"),
+    PALAVRA_RESERVADA_CONST("const"),
+    OPERADOR_MULTIPLICACAO("\\*"),
+    OPERADOR_IGUAL("\\="),
+    OPERADOR_DIFERENTE("<>"),
+    OPERADOR_AND("and"),
+    OPERADOR_OR("or"),
+    OPERADOR_NOT("not"),
+    OPERADOR_MAIOR(">"),
+    OPERADOR_MENOR("<"),
+    OPERADOR_MAIOR_IGUAL(">="),
+    OPERADOR_MENOR_IGUAL("<="),
+    OPERADOR_ATRIBUICAO(":="),
+    OPERADOR_MOD("mod"),
+    OPERADOR_IN("in"),
+    OPERADOR_SOMA("\\+"),
+    OPERADOR_MENOS("\\-");
     
     public String regex;
-    public HashMap table;
-    
+  
     private Classificacao(String regex){
         this.regex = regex;
     }

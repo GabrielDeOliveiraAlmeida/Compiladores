@@ -22,19 +22,20 @@ public class AnalisadorLexico {
     private int linha;
     private Classificacao chClass;
     private ArrayList<Lexema> lexemas;
-
+    private ArrayList<Erro> erros;
+    private ClassificacaoReservadas classes;
     public AnalisadorLexico() {
-
+        classes = new ClassificacaoReservadas();
     }
 
     private void init(){
         lexema = "";
+        //Array contendo todos os lexemas
         lexemas = new ArrayList<>();
         cont =0;
         linha=0;
     }
     public ArrayList<Lexema> execute(String text) {
-        //Array contendo todos os lexemas
         
         textArray = (text+" ").toCharArray();
         System.out.println("Iniciando analise léxica"
@@ -53,7 +54,7 @@ public class AnalisadorLexico {
                  */
                 case INTEIRO:
                     posInicial = cont;
-                    addChar();
+                    addChar(); 
                     /*
                     Se caso haja '.' representará um número com virgula, 
                     a segunda verificação serve para ignorar o segundo ponto;
@@ -61,10 +62,12 @@ public class AnalisadorLexico {
                     while (chClass.equals(Classificacao.INTEIRO) || (chAtual.equals(".") && (lexema).matches(Classificacao.INTEIRO.getRegex()))) {
                         addChar();
                     }
-                    if (lexema.matches(Classificacao.COM_VIRGULA.getRegex())) {
-                        addLexema(Classificacao.COM_VIRGULA);
-                    } else {
+                    if (lexema.matches(Classificacao.INTEIRO.getRegex())) {
+                        verificaTamanho(Classificacao.INTEIRO);
                         addLexema(Classificacao.INTEIRO);
+                    } else {
+                        verificaTamanho(Classificacao.COM_VIRGULA);
+                        addLexema(Classificacao.COM_VIRGULA);
                     }
                     break;
                 /*
@@ -75,15 +78,16 @@ public class AnalisadorLexico {
                     addChar();
                     while(chClass.equals(Classificacao.IDENTIFICADOR)) {
                         addChar();
-                    }
+                    } 
                     if (lexema.matches(Classificacao.PALAVRA_RESERVDA.getRegex())) {
-                        addLexema(Classificacao.PALAVRA_RESERVDA);
+                        addLexema(classes.getClasse(lexema));
                     } else {
+                        verificaTamanho(Classificacao.IDENTIFICADOR);
                         addLexema(Classificacao.IDENTIFICADOR);
                     }
                     break;
                 case PULA_LINHA:
-                    linha++;
+                    pularLinha();
                     break;
                 case COMENTARIO:
                     while(!chClass.equals(Classificacao.PULA_LINHA)){
@@ -93,11 +97,15 @@ public class AnalisadorLexico {
                 case COMENTARIO_BLOCO:
                     while(!chAtual.equals("}")){
                         if(cont >= textArray.length){
+                            addErro("'}' Esperado", Classificacao.COMENTARIO_BLOCO);
                             break;
                         }
                         nextChar();
                     }
                     nextChar();
+                    break;
+                case OPERADORES:
+                    addLexema(classes.getClasse(lexema));
                     break;
                 default:
                     posInicial = cont;
@@ -127,4 +135,31 @@ public class AnalisadorLexico {
         lexema = "";
     }
     
+    private void addErro(String erro, Classificacao classe){
+        erros.add(new Erro(erro, classe, posInicial, linha));
+    }
+    
+    private void pularLinha(){
+        linha++;
+    }
+    
+    private boolean verificaTamanho(Classificacao classe){
+        if(classe.equals(Classificacao.IDENTIFICADOR)){
+            if(cont - posInicial>32){
+                addErro("IDENTIFICADOR Longo", Classificacao.IDENTIFICADOR);
+                return false;
+            }
+        }else if(classe.equals(Classificacao.INTEIRO)){
+            if(cont - posInicial>8){
+                addErro("INTEIRO Longo", Classificacao.INTEIRO);
+                return false;
+            }
+        }else if(classe.equals(Classificacao.COM_VIRGULA)){
+            if(cont - posInicial > 18){
+                addErro("FLOAT Longo", Classificacao.COM_VIRGULA);
+                return false;
+            }
+        }
+        return true;
+    }
 }
