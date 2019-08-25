@@ -32,6 +32,7 @@ public class AnalisadorLexico {
         lexema = "";
         //Array contendo todos os lexemas
         lexemas = new ArrayList<>();
+        erros = new ArrayList<>();
         cont =0;
         linha=0;
     }
@@ -63,11 +64,11 @@ public class AnalisadorLexico {
                         addChar();
                     }
                     if (lexema.matches(Classificacao.INTEIRO.getRegex())) {
-                        verificaTamanho(Classificacao.INTEIRO);
-                        addLexema(Classificacao.INTEIRO);
+                        if(!verificaTamanho(Classificacao.INTEIRO)) nextChar();
+                        else addLexema(Classificacao.INTEIRO);
                     } else {
-                        verificaTamanho(Classificacao.COM_VIRGULA);
-                        addLexema(Classificacao.COM_VIRGULA);
+                        if(!verificaTamanho(Classificacao.COM_VIRGULA)) nextChar();
+                        else addLexema(Classificacao.COM_VIRGULA);
                     }
                     break;
                 /*
@@ -82,19 +83,23 @@ public class AnalisadorLexico {
                     if (lexema.matches(Classificacao.PALAVRA_RESERVDA.getRegex())) {
                         addLexema(classes.getClasse(lexema));
                     } else {
-                        verificaTamanho(Classificacao.IDENTIFICADOR);
-                        addLexema(Classificacao.IDENTIFICADOR);
+                        if(!verificaTamanho(Classificacao.IDENTIFICADOR))
+                            nextChar();
+                        else addLexema(Classificacao.IDENTIFICADOR);
                     }
                     break;
                 case PULA_LINHA:
                     pularLinha();
                     break;
+                    
                 case COMENTARIO:
                     while(!chClass.equals(Classificacao.PULA_LINHA)){
                         nextChar();
                     }
                     break;
+                    
                 case COMENTARIO_BLOCO:
+                    posInicial = cont;
                     while(!chAtual.equals("}")){
                         if(cont >= textArray.length){
                             addErro("'}' Esperado", Classificacao.COMENTARIO_BLOCO);
@@ -104,9 +109,39 @@ public class AnalisadorLexico {
                     }
                     nextChar();
                     break;
+                    
                 case OPERADORES:
+                    posInicial = cont;
+                    addChar();
+                    if((lexema+chAtual).matches(Classificacao.OPERADORES.getRegex())){
+                        addChar();
+                    }
                     addLexema(classes.getClasse(lexema));
                     break;
+                
+                case DELIMITADOR:
+                    posInicial = cont;
+                    addChar();
+                    if((lexema+chAtual).matches(Classificacao.OPERADORES.getRegex())){
+                        addChar();
+                        addLexema(classes.getClasse(lexema));
+                        break;
+                    }else{
+                        previousChar();
+                        System.out.println(chAtual);
+                        addLexema(chClass);
+                    }
+                    
+                    break;
+                    
+                case CARACTER_INVALIDO:
+                    posInicial = cont;
+                    lexema = chAtual;
+                    addErro("'"+chAtual + "' Invalido", Classificacao.CARACTER_INVALIDO);
+                    addLexema(chClass);
+                    nextChar();
+                    break;
+                
                 default:
                     posInicial = cont;
                     lexema = chAtual;
@@ -124,7 +159,16 @@ public class AnalisadorLexico {
         chAtual = String.valueOf(textArray[cont++]);
         chClass = Classificacao.getOf(chAtual);
     }
+    
+    private void previousChar(){
+        cont--;
+        chAtual = String.valueOf(textArray[cont]);
+        chClass = Classificacao.getOf(chAtual);
+    }
 
+    private void setLexema(){
+        lexema = chAtual;
+    }
     private void addChar() {
         lexema += chAtual;
         nextChar();

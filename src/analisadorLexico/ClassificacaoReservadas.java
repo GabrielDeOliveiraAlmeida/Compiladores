@@ -8,6 +8,7 @@ package analisadorLexico;
 import static analisadorLexico.Classificacao.OPERADOR_AND;
 import static analisadorLexico.Classificacao.OPERADOR_ATRIBUICAO;
 import static analisadorLexico.Classificacao.OPERADOR_DIFERENTE;
+import static analisadorLexico.Classificacao.OPERADOR_DIVISAO;
 import static analisadorLexico.Classificacao.OPERADOR_IGUAL;
 import static analisadorLexico.Classificacao.OPERADOR_IN;
 import static analisadorLexico.Classificacao.OPERADOR_MAIOR;
@@ -61,6 +62,7 @@ public class ClassificacaoReservadas {
         tabela.put("boolean", PALAVRA_RESERVADA_BOOLEAN);
         tabela.put("const", PALAVRA_RESERVADA_CONST);
         tabela.put("*", OPERADOR_MULTIPLICACAO);
+        tabela.put("/", OPERADOR_DIVISAO);
         tabela.put("=", OPERADOR_IGUAL);
         tabela.put("<>", OPERADOR_DIFERENTE);
         tabela.put("and", OPERADOR_AND);

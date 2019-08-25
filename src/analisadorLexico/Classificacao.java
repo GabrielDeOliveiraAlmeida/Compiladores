@@ -13,15 +13,15 @@ import java.util.regex.Pattern;
  * https://github.com/evernife/Compiladores-Atividades/blob/master/src/main/java/br/com/finalcraft/unesp/compiladores/atividades/logical/lexema/LexemaType.java 
  */
 public enum Classificacao {
-    CARACTER_INVALIDO("[@|#|&|¨|!|?|.|,]"),
-    INTEIRO("(0|[1-9][0-9]*)"),
+    CARACTER_INVALIDO("[@|#|&|¨|!|\\?|.|,]"),
+    INTEIRO("0|[1-9][0-9]*"),
     COM_VIRGULA("(0|([1-9][0-9]*))(\\.[0-9]+)?$"),
     IDENTIFICADOR("[a-z|A-Z][a-z|A-Z|0-9|_]*"),
     PALAVRA_RESERVDA("if|then|else|begin|end|while|do|program"
-            + "procedure|true|false|char|integer|boolean|const"),
+            + "procedure|true|false|char|integer|boolean|const|and|or|not|mod|in"),
     COMENTARIO("//(.*?)"),
     COMENTARIO_BLOCO("[{]"),
-    OPERADORES("\\+|\\-|\\*|\\/|\\=|<>|and|or|not|>|<|<=|>=|:=|mod|in"),
+    OPERADORES("\\+|\\-|\\*|\\/|=|<>|>|<|<=|>=|(:=)"),
     DELIMITADOR(",|;|:|\\(|\\)|\\[|\\]"),
     BRANCO(" |\t|\r"),
     PULA_LINHA("\n"),
@@ -43,6 +43,7 @@ public enum Classificacao {
     PALAVRA_RESERVADA_BOOLEAN("boolean"),
     PALAVRA_RESERVADA_CONST("const"),
     OPERADOR_MULTIPLICACAO("\\*"),
+    OPERADOR_DIVISAO("\\/"),
     OPERADOR_IGUAL("\\="),
     OPERADOR_DIFERENTE("<>"),
     OPERADOR_AND("and"),
