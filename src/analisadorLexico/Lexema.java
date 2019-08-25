@@ -41,6 +41,10 @@ public class Lexema {
     public int getColuna_final() {
         return coluna_final;
     }
+
+    public int getLinha() {
+        return linha;
+    }
     
     
     

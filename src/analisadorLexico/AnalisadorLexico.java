@@ -19,6 +19,7 @@ public class AnalisadorLexico {
     private String chAtual;
     private int cont;
     private int posInicial;
+    private int posFinal;
     private int linha;
     private Classificacao chClass;
     private ArrayList<Lexema> lexemas;
@@ -34,7 +35,9 @@ public class AnalisadorLexico {
         lexemas = new ArrayList<>();
         erros = new ArrayList<>();
         cont =0;
-        linha=0;
+        posInicial = 0;
+        posFinal = 0;
+        linha=1;
     }
     public ArrayList<Lexema> execute(String text) {
         
@@ -90,6 +93,7 @@ public class AnalisadorLexico {
                     break;
                 case PULA_LINHA:
                     pularLinha();
+                    nextChar();
                     break;
                     
                 case COMENTARIO:

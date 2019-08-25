@@ -17,14 +17,23 @@ import javafx.collections.FXCollections;
 
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 
 /**
@@ -35,7 +44,7 @@ import javafx.stage.FileChooser;
 public class MainScreenController implements Initializable {
 
    @FXML
-   private TextField inputText;
+   private TextArea inputText;
 
    @FXML
     private Button btn;
@@ -50,16 +59,27 @@ public class MainScreenController implements Initializable {
     private TableColumn<Lexema, String> tcToken;
 
     @FXML
+    private TableColumn<Lexema,String> tcLinha;
+    
+    @FXML
     private TableColumn<Lexema, String> tcColunaInicial;
 
     @FXML
     private TableColumn<Lexema, String> tcColunaFinal;
     
+   @FXML
+    private TextFlow flowCount;
+    @FXML
+    private ScrollPane scrollCount;
+    
     private ArrayList<Lexema> lex;
     private AnalisadorLexico ana;
     private ObservableList<Lexema> obsListLex;
     private File file;
+    private ObservableList obsCount;
+    private int lineCount;
     
+   
     
     public void execute(String exp){
         
@@ -74,6 +94,30 @@ public class MainScreenController implements Initializable {
         execute(inputText.getText());
     }
     
+    
+    @FXML
+    void keyPressed_Enter(KeyEvent event) {
+        switch(event.getCode()){
+            case ENTER:
+                Text t = new Text();
+                t.setFont(Font.font("System", 13));
+                t.setText(lineCount + "\n");
+                obsCount.add(t);
+                lineCount++;
+                break;
+            case BACK_SPACE:
+                if(lineCount!=2){
+                    obsCount.remove(lineCount-2);
+                    lineCount--; 
+                }
+                break;
+                
+        }
+        scrollCount.setVvalue(1.0);
+        
+    }
+    
+
     @FXML
     void onClickOpen(ActionEvent event) throws FileNotFoundException {
         
@@ -100,11 +144,34 @@ public class MainScreenController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
+       
+        
+        obsCount = flowCount.getChildren();
+        Text t = new Text();
+        t.setFont(Font.font("System", 13));
+        t.setText("1\n");
+        obsCount.add(t);
+         lineCount=2;
+        scrollCount.setFitToHeight(true);
+        
+        scrollCount.addEventFilter(ScrollEvent.SCROLL,new EventHandler<ScrollEvent>() {
+        @Override
+        public void handle(ScrollEvent event) {
+            if (event.getDeltaY() != 0) {
+                event.consume();
+            }
+        }
+        });
+        
+        
+        
         tcLexema.setCellValueFactory(new PropertyValueFactory<>("lexema"));
         tcToken.setCellValueFactory(new PropertyValueFactory<>("token"));
+        tcLinha.setCellValueFactory(new PropertyValueFactory<>("linha"));
         tcColunaInicial.setCellValueFactory(new PropertyValueFactory<>("coluna_inicial"));
         tcColunaFinal.setCellValueFactory(new PropertyValueFactory<>("coluna_final"));
         ana = new AnalisadorLexico();
+        
     }    
     
 }
