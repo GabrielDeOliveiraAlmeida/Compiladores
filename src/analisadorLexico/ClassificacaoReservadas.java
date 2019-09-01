@@ -5,9 +5,18 @@
  */
 package analisadorLexico;
 
+import static analisadorLexico.Classificacao.DELIMITADOR_ABRE_COLCHETE;
+import static analisadorLexico.Classificacao.DELIMITADOR_ABRE_PARENTESE;
+import static analisadorLexico.Classificacao.DELIMITADOR_DOIS_PONTO;
+import static analisadorLexico.Classificacao.DELIMITADOR_FECHA_COLCHETE;
+import static analisadorLexico.Classificacao.DELIMITADOR_FECHA_PARENTESE;
+import static analisadorLexico.Classificacao.DELIMITADOR_PONTO;
+import static analisadorLexico.Classificacao.DELIMITADOR_PONTO_VIRGULA;
+import static analisadorLexico.Classificacao.DELIMITADOR_VIRGULA;
 import static analisadorLexico.Classificacao.OPERADOR_AND;
 import static analisadorLexico.Classificacao.OPERADOR_ATRIBUICAO;
 import static analisadorLexico.Classificacao.OPERADOR_DIFERENTE;
+import static analisadorLexico.Classificacao.OPERADOR_DIV;
 import static analisadorLexico.Classificacao.OPERADOR_DIVISAO;
 import static analisadorLexico.Classificacao.OPERADOR_IGUAL;
 import static analisadorLexico.Classificacao.OPERADOR_IN;
@@ -30,11 +39,13 @@ import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_ELSE;
 import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_END;
 import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_FALSE;
 import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_IF;
+import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_INT;
 import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_INTEGER;
 import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_PROCEDURE;
-import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_PROGAM;
+import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_PROGRAM;
 import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_THEN;
 import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_TRUE;
+import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_VAR;
 import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_WHILE;
 import java.util.HashMap;
 
@@ -53,13 +64,23 @@ public class ClassificacaoReservadas {
         tabela.put("end", PALAVRA_RESERVADA_END);
         tabela.put("while", PALAVRA_RESERVADA_WHILE);
         tabela.put("do", PALAVRA_RESERVADA_DO);
-        tabela.put("program", PALAVRA_RESERVADA_PROGAM);
+        tabela.put("program", PALAVRA_RESERVADA_PROGRAM);
         tabela.put("procedure", PALAVRA_RESERVADA_PROCEDURE);
         tabela.put("true", PALAVRA_RESERVADA_TRUE);
         tabela.put("false", PALAVRA_RESERVADA_FALSE);
         tabela.put("char", PALAVRA_RESERVADA_CHAR);
         tabela.put("integer", PALAVRA_RESERVADA_INTEGER);
+        tabela.put("int", PALAVRA_RESERVADA_INT);
         tabela.put("boolean", PALAVRA_RESERVADA_BOOLEAN);
+        tabela.put("var", PALAVRA_RESERVADA_VAR);
+        tabela.put("(", DELIMITADOR_ABRE_PARENTESE);
+        tabela.put(")", DELIMITADOR_FECHA_PARENTESE);
+        tabela.put("[", DELIMITADOR_ABRE_COLCHETE);
+        tabela.put("]", DELIMITADOR_FECHA_COLCHETE);
+        tabela.put(";", DELIMITADOR_PONTO_VIRGULA);
+        tabela.put(".", DELIMITADOR_PONTO);
+        tabela.put(":", DELIMITADOR_DOIS_PONTO);
+        tabela.put(",", DELIMITADOR_VIRGULA);
         tabela.put("const", PALAVRA_RESERVADA_CONST);
         tabela.put("*", OPERADOR_MULTIPLICACAO);
         tabela.put("/", OPERADOR_DIVISAO);
@@ -74,6 +95,7 @@ public class ClassificacaoReservadas {
         tabela.put("<=", OPERADOR_MENOR_IGUAL);
         tabela.put(":=", OPERADOR_ATRIBUICAO);
         tabela.put("mod", OPERADOR_MOD);
+        tabela.put("mod", OPERADOR_DIV);
         tabela.put("in", OPERADOR_IN);
         tabela.put("+", OPERADOR_SOMA);
         tabela.put("-", OPERADOR_MENOS);   

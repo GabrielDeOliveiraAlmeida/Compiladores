@@ -10,17 +10,39 @@ package analisadorLexico;
  * @author cc161255426
  */
 public class Erro {
-    private String erro;
-    private Classificacao classe;
-    private int coluna;
-    private int linha;
+     
+    private final String lexema;
+    private final Classificacao token;
+    private final int coluna_inicial;
+    private final int coluna_final;
+    private final int linha;
     
-    
-    public Erro(String erro, Classificacao classe, int coluna, int linha){
-        this.erro = erro;
-        this.classe = classe;
-        this.coluna = coluna;
+    public Erro(String lexema,Classificacao token, int coluna_inicial, int coluna_final, int linha) {
+        this.lexema = lexema;
+        this.token = token;
+        this.coluna_inicial = coluna_inicial;
+        this.coluna_final = coluna_final;
         this.linha = linha;
+    }
+
+    public String getLexema() {
+        return lexema;
+    }
+
+    public Classificacao getToken() {
+        return token;
+    }
+
+    public int getColuna_inicial() {
+        return coluna_inicial;
+    }
+
+    public int getColuna_final() {
+        return coluna_final;
+    }
+
+    public int getLinha() {
+        return linha;
     }
     
 }

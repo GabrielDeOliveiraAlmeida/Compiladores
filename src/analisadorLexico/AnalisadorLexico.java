@@ -6,6 +6,7 @@
 package analisadorLexico;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -22,32 +23,35 @@ public class AnalisadorLexico {
     private int posFinal;
     private int linha;
     private Classificacao chClass;
-    private ArrayList<Lexema> lexemas;
-    private ArrayList<Erro> erros;
+    private ArrayList<Object> lexemas;
     private ClassificacaoReservadas classes;
+    private int contCol;
+
     public AnalisadorLexico() {
         classes = new ClassificacaoReservadas();
     }
 
-    private void init(){
+    private void init() {
         lexema = "";
         //Array contendo todos os lexemas
         lexemas = new ArrayList<>();
-        erros = new ArrayList<>();
-        cont =0;
+        cont = 0;
+        contCol = 0;
         posInicial = 0;
         posFinal = 0;
-        linha=1;
+        linha = 1;
     }
-    public ArrayList<Lexema> execute(String text) {
-        
-        textArray = (text+" ").toCharArray();
+
+    public ArrayList<Object> execute(String text) {
+
+        textArray = (text + " ").toCharArray();
         System.out.println("Iniciando analise léxica"
                 + "\n Tamanho = " + textArray.length);
         init();
         nextChar();
+
         while (cont < textArray.length) {
-            System.out.println("Posicao ="+ cont + " Classe = " + chClass + " char = "+ chAtual);
+            System.out.println("Posicao =" + cont + " Classe = " + chClass + " char = " + chAtual);
             //Ignorar os caracter em branco
             switch (chClass) {
                 case BRANCO:
@@ -57,157 +61,168 @@ public class AnalisadorLexico {
                     Verificar se o número é DOUBLE OU INTEIRO
                  */
                 case INTEIRO:
-                    posInicial = cont;
-                    addChar(); 
+                    posInicial = contCol;
+                    //addChar();
                     /*
                     Se caso haja '.' representará um número com virgula, 
                     a segunda verificação serve para ignorar o segundo ponto;
                      */
-                    while (chClass.equals(Classificacao.INTEIRO) || (chAtual.equals(".") && (lexema).matches(Classificacao.INTEIRO.getRegex()))) {
+                    boolean aux = true;
+                    while (chClass.equals(Classificacao.INTEIRO)) {
                         addChar();
+                        
+                        if (chAtual.matches(Pattern.quote("."))) {
+                            
+                            if (((lexema + textArray[cont]).matches(Classificacao.COM_VIRGULA.getRegex()))) {
+                                addChar();
+                            } else {
+                                break;
+                            }
+                        }
                     }
                     if (lexema.matches(Classificacao.INTEIRO.getRegex())) {
-                        if(!verificaTamanho(Classificacao.INTEIRO)) nextChar();
-                        else addLexema(Classificacao.INTEIRO);
+                        addLexema(Classificacao.INTEIRO);
+                    } else if (lexema.matches(Classificacao.COM_VIRGULA.getRegex())) {
+                        addLexema(Classificacao.COM_VIRGULA);
                     } else {
-                        if(!verificaTamanho(Classificacao.COM_VIRGULA)) nextChar();
-                        else addLexema(Classificacao.COM_VIRGULA);
+                        Classificacao classif = Classificacao.checkErr(lexema);
+                        if (classif.equals(Classificacao.DESCONHECIDO.getRegex())) {
+                            previousChar();
+                            break;
+                        }
+                        addErro(classif);
                     }
                     break;
                 /*
                     Verifica os identificadores e os classifica corretamente.
                  */
                 case IDENTIFICADOR:
-                    posInicial = cont;
+                    posInicial = contCol;
                     addChar();
-                    while(chClass.equals(Classificacao.IDENTIFICADOR)) {
+                    while (chClass.equals(Classificacao.IDENTIFICADOR) || chClass.equals(Classificacao.INTEIRO)) {
                         addChar();
-                    } 
+                    }
                     if (lexema.matches(Classificacao.PALAVRA_RESERVDA.getRegex())) {
                         addLexema(classes.getClasse(lexema));
                     } else {
-                        if(!verificaTamanho(Classificacao.IDENTIFICADOR))
-                            nextChar();
-                        else addLexema(Classificacao.IDENTIFICADOR);
+                        Classificacao classif = Classificacao.getOf(lexema);
+                        if (classif.equals(Classificacao.IDENTIFICADOR_LONGO)) {
+                            addErro(classif);
+                        } else {
+                            addLexema(classif);
+                        }
                     }
                     break;
+
                 case PULA_LINHA:
                     pularLinha();
                     nextChar();
                     break;
-                    
-                case COMENTARIO:
-                    while(!chClass.equals(Classificacao.PULA_LINHA)){
-                        nextChar();
+
+                case OPERADORES:
+                    posInicial = contCol;
+                    addChar();
+                    //Tratar comentario
+                    if ((lexema + chAtual).matches(Classificacao.COMENTARIO.getRegex())) {;
+                        lexema="";
+                        while (!chClass.equals(Classificacao.PULA_LINHA) && cont < textArray.length) {
+                            nextChar();
+                        }
+                        break;
                     }
+                    //Tratar sinais com dois caracteres
+                    if ((lexema + chAtual).matches(Classificacao.OPERADORES.getRegex())) {
+                        addChar();
+                    }
+                    addLexema(classes.getClasse(lexema));
                     break;
-                    
+
+                case DELIMITADOR:
+                    posInicial = contCol;
+                    addChar();
+                    if ((lexema + chAtual).matches(Classificacao.OPERADOR_ATRIBUICAO.getRegex())) {
+                        addChar();
+                    }
+                    addLexema(classes.getClasse(lexema));
+                    break;
+
+                case CARACTER_INVALIDO:
+                    posInicial = contCol;
+                    lexema = chAtual;
+//                    addErro(chClass);;
+                    addLexema(chClass);
+                    nextChar();
+                    break;
+
                 case COMENTARIO_BLOCO:
-                    posInicial = cont;
-                    while(!chAtual.equals("}")){
-                        if(cont >= textArray.length){
-                            addErro("'}' Esperado", Classificacao.COMENTARIO_BLOCO);
+                    posInicial = contCol;
+                    while (!chAtual.equals("}")) {
+                        if (cont >= textArray.length) {
+                            addErro(Classificacao.DELIMITADOR_FECHA_CHAVE);
+                            cont--;
                             break;
                         }
                         nextChar();
                     }
                     nextChar();
                     break;
-                    
-                case OPERADORES:
-                    posInicial = cont;
-                    addChar();
-                    if((lexema+chAtual).matches(Classificacao.OPERADORES.getRegex())){
-                        addChar();
-                    }
-                    addLexema(classes.getClasse(lexema));
-                    break;
-                
-                case DELIMITADOR:
-                    posInicial = cont;
-                    addChar();
-                    if((lexema+chAtual).matches(Classificacao.OPERADORES.getRegex())){
-                        addChar();
-                        addLexema(classes.getClasse(lexema));
-                        break;
-                    }else{
-                        previousChar();
-                        System.out.println(chAtual);
-                        addLexema(chClass);
-                    }
-                    
-                    break;
-                    
-                case CARACTER_INVALIDO:
-                    posInicial = cont;
-                    lexema = chAtual;
-                    addErro("'"+chAtual + "' Invalido", Classificacao.CARACTER_INVALIDO);
-                    addLexema(chClass);
-                    nextChar();
-                    break;
-                
-                default:
-                    posInicial = cont;
-                    lexema = chAtual;
-                    cont++;
-                    addLexema(chClass);
-                    cont--;
-                    nextChar();
+//                    
+//                default:
+//                    posInicial = cont;
+//                    lexema = chAtual;
+//                    cont++;
+//                    addLexema(chClass);
+//                    cont--;
+//                    nextChar();
             }
         }
         return lexemas;
     }
-
     //Le o proximo caracter e o classifica para verificações.
+
+    private String getChar() {
+        if (cont + 1 < textArray.length) {
+            return String.valueOf(textArray[cont + 1]);
+        } else {
+            return null;
+        }
+    }
+
     private void nextChar() {
         chAtual = String.valueOf(textArray[cont++]);
         chClass = Classificacao.getOf(chAtual);
+        contCol++;
     }
-    
-    private void previousChar(){
+
+    private void previousChar() {
         cont--;
+        contCol--;
         chAtual = String.valueOf(textArray[cont]);
         chClass = Classificacao.getOf(chAtual);
     }
 
-    private void setLexema(){
+    private void setLexema() {
         lexema = chAtual;
     }
+
     private void addChar() {
         lexema += chAtual;
         nextChar();
     }
 
     private void addLexema(Classificacao classe) {
-        lexemas.add(new Lexema(lexema, classe, posInicial, cont - 1, linha));
+        lexemas.add(new Lexema(lexema, classe, posInicial, contCol - 1, linha));
         lexema = "";
     }
-    
-    private void addErro(String erro, Classificacao classe){
-        erros.add(new Erro(erro, classe, posInicial, linha));
+
+    private void addErro(Classificacao classe) {
+        lexemas.add(new Erro(lexema, classe, posInicial, contCol - 1, linha));
+        lexema = "";
     }
-    
-    private void pularLinha(){
+
+    private void pularLinha() {
         linha++;
+        contCol = 0;
     }
-    
-    private boolean verificaTamanho(Classificacao classe){
-        if(classe.equals(Classificacao.IDENTIFICADOR)){
-            if(cont - posInicial>32){
-                addErro("IDENTIFICADOR Longo", Classificacao.IDENTIFICADOR);
-                return false;
-            }
-        }else if(classe.equals(Classificacao.INTEIRO)){
-            if(cont - posInicial>8){
-                addErro("INTEIRO Longo", Classificacao.INTEIRO);
-                return false;
-            }
-        }else if(classe.equals(Classificacao.COM_VIRGULA)){
-            if(cont - posInicial > 18){
-                addErro("FLOAT Longo", Classificacao.COM_VIRGULA);
-                return false;
-            }
-        }
-        return true;
-    }
+
 }

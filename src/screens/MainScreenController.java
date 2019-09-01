@@ -58,7 +58,7 @@ public class MainScreenController implements Initializable {
     private Button btn;
 
     @FXML
-    private TableView<Lexema> tabela;
+    private TableView<Object> tabela;
 
     @FXML
     private TableColumn<Lexema, String> tcLexema;
@@ -83,9 +83,9 @@ public class MainScreenController implements Initializable {
     private BorderPane bordePane;
    
     
-    private ArrayList<Lexema> lex;
+    private ArrayList<Object> lex;
     private AnalisadorLexico ana;
-    private ObservableList<Lexema> obsListLex;
+    private ObservableList<Object> obsListLex;
     private File file;
     private ObservableList obsCount;
     private int lineCount;

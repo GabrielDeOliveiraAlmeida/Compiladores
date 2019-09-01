@@ -13,19 +13,23 @@ import java.util.regex.Pattern;
  * https://github.com/evernife/Compiladores-Atividades/blob/master/src/main/java/br/com/finalcraft/unesp/compiladores/atividades/logical/lexema/LexemaType.java 
  */
 public enum Classificacao {
-    CARACTER_INVALIDO("[@|#|&|¨|!|\\?|.|,]"),
-    INTEIRO("0|[1-9][0-9]*"),
-    COM_VIRGULA("(0|([1-9][0-9]*))(\\.[0-9]+)?$"),
-    IDENTIFICADOR("[a-z|A-Z][a-z|A-Z|0-9|_]*"),
-    PALAVRA_RESERVDA("if|then|else|begin|end|while|do|program"
-            + "procedure|true|false|char|integer|boolean|const|and|or|not|mod|in"),
-    COMENTARIO("//(.*?)"),
+    CARACTER_INVALIDO("[@|#|&|¨|!|\\?]"),
+    INTEIRO("0|[1-9][0-9]{0,10}"),
+    COM_VIRGULA("(0|([1-9][0-9]{0,10}))(\\.[0-9]{1,10})?$"),
+    IDENTIFICADOR("[_|a-z|A-Z][a-z|A-Z|0-9|_]{0,19}"),
+    PALAVRA_RESERVDA("if|then|else|begin|end|while|do|program|"
+            + "procedure|true|false|char|integer|int|boolean|const|and|or|not|mod|in|var|div"),
+    COMENTARIO(Pattern.quote("//")),
     COMENTARIO_BLOCO("[{]"),
     OPERADORES("\\+|\\-|\\*|\\/|=|<>|>|<|<=|>=|(:=)"),
-    DELIMITADOR(",|;|:|\\(|\\)|\\[|\\]"),
+    DELIMITADOR("\\.|\\,|;|:|\\(|\\)|\\[|\\]"),
     BRANCO(" |\t|\r"),
     PULA_LINHA("\n"),
-    DESCONHECIDO(Pattern.quote("")),
+    
+    //ERROS
+    INTEIRO_LONGO("0|[1-9][0-9]{10,}"),
+    COM_VIRGULA_LONGO("(0|([1-9][0-9]*))(\\.[0-9]{10,})?$"),
+    IDENTIFICADOR_LONGO("[_|a-z|A-Z][a-z|A-Z|0-9|_]{19,}"),
     
     PALAVRA_RESERVADA_IF("if"),
     PALAVRA_RESERVADA_THEN("then"),
@@ -34,14 +38,22 @@ public enum Classificacao {
     PALAVRA_RESERVADA_END("end"),
     PALAVRA_RESERVADA_WHILE("while"),
     PALAVRA_RESERVADA_DO("do"),
-    PALAVRA_RESERVADA_PROGAM("program"),
+    PALAVRA_RESERVADA_PROGRAM("program"),
     PALAVRA_RESERVADA_PROCEDURE("procedure"),
+    PALAVRA_RESERVADA_VAR("var"),
     PALAVRA_RESERVADA_TRUE("true"),
     PALAVRA_RESERVADA_FALSE("false"),
     PALAVRA_RESERVADA_CHAR("char"),
     PALAVRA_RESERVADA_INTEGER("integer"),
+    PALAVRA_RESERVADA_INT("int"),
     PALAVRA_RESERVADA_BOOLEAN("boolean"),
     PALAVRA_RESERVADA_CONST("const"),
+    DELIMITADOR_ABRE_PARENTESE("\\("),
+    DELIMITADOR_FECHA_PARENTESE("\\)"),
+    DELIMITADOR_ABRE_COLCHETE(Pattern.quote("[")),
+    DELIMITADOR_FECHA_COLCHETE(Pattern.quote("]")),
+    DELIMITADOR_ABRE_CHAVE(Pattern.quote("{")),
+    DELIMITADOR_FECHA_CHAVE(Pattern.quote("}")),
     OPERADOR_MULTIPLICACAO("\\*"),
     OPERADOR_DIVISAO("\\/"),
     OPERADOR_IGUAL("\\="),
@@ -53,11 +65,20 @@ public enum Classificacao {
     OPERADOR_MENOR("<"),
     OPERADOR_MAIOR_IGUAL(">="),
     OPERADOR_MENOR_IGUAL("<="),
-    OPERADOR_ATRIBUICAO(":="),
+    OPERADOR_ATRIBUICAO(Pattern.quote(":=")),
     OPERADOR_MOD("mod"),
+    OPERADOR_DIV("div"),
     OPERADOR_IN("in"),
-    OPERADOR_SOMA("\\+"),
-    OPERADOR_MENOS("\\-");
+    OPERADOR_SOMA(Pattern.quote("+")),
+    OPERADOR_MENOS(Pattern.quote("-")),
+    DELIMITADOR_PONTO(Pattern.quote(".")),
+    DELIMITADOR_VIRGULA(Pattern.quote(",")),
+    DELIMITADOR_PONTO_VIRGULA(Pattern.quote(";")),
+    DELIMITADOR_DOIS_PONTO(Pattern.quote(":")),
+    
+    DESCONHECIDO(Pattern.quote(""));
+
+    
     
     public String regex;
   
@@ -78,4 +99,17 @@ public enum Classificacao {
         return Classificacao.DESCONHECIDO;
     }
     
+    public static Classificacao checkErr(String str){
+        if(str.matches(Classificacao.INTEIRO_LONGO.getRegex())) return Classificacao.INTEIRO_LONGO;
+        else if(str.matches(Classificacao.COM_VIRGULA_LONGO.getRegex())) return Classificacao.COM_VIRGULA_LONGO;
+        else if(str.matches(Classificacao.IDENTIFICADOR_LONGO.getRegex())) return Classificacao.IDENTIFICADOR_LONGO;
+        else return Classificacao.DESCONHECIDO;
+    }
+    
+    public static Classificacao check(String str){
+        if(str.matches(Classificacao.INTEIRO.getRegex())) return Classificacao.INTEIRO;
+        else if(str.matches(Classificacao.COM_VIRGULA.getRegex())) return Classificacao.COM_VIRGULA;
+        else if(str.matches(Classificacao.IDENTIFICADOR.getRegex())) return Classificacao.IDENTIFICADOR;
+        else return Classificacao.DESCONHECIDO;
+    }
 }
