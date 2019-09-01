@@ -30,11 +30,18 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
+import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.richtext.CodeArea;
+
+import org.fxmisc.richtext.LineNumberFactory;
+
 
 /**
  * FXML Controller class
@@ -43,6 +50,7 @@ import javafx.stage.FileChooser;
  */
 public class MainScreenController implements Initializable {
 
+   public static MainScreenController instance; 
    @FXML
    private TextArea inputText;
 
@@ -69,8 +77,11 @@ public class MainScreenController implements Initializable {
     
    @FXML
     private TextFlow flowCount;
+   
+    
     @FXML
-    private ScrollPane scrollCount;
+    private BorderPane bordePane;
+   
     
     private ArrayList<Lexema> lex;
     private AnalisadorLexico ana;
@@ -78,7 +89,7 @@ public class MainScreenController implements Initializable {
     private File file;
     private ObservableList obsCount;
     private int lineCount;
-    
+    private CodeArea codeArea; 
    
     
     public void execute(String exp){
@@ -91,32 +102,8 @@ public class MainScreenController implements Initializable {
     
     @FXML
     void onClickExecute(ActionEvent event) {
-        execute(inputText.getText());
+        execute(codeArea.getText());
     }
-    
-    
-    @FXML
-    void keyPressed_Enter(KeyEvent event) {
-        switch(event.getCode()){
-            case ENTER:
-                Text t = new Text();
-                t.setFont(Font.font("System", 13));
-                t.setText(lineCount + "\n");
-                obsCount.add(t);
-                lineCount++;
-                break;
-            case BACK_SPACE:
-                if(lineCount!=2){
-                    obsCount.remove(lineCount-2);
-                    lineCount--; 
-                }
-                break;
-                
-        }
-        scrollCount.setVvalue(1.0);
-        
-    }
-    
 
     @FXML
     void onClickOpen(ActionEvent event) throws FileNotFoundException {
@@ -132,7 +119,7 @@ public class MainScreenController implements Initializable {
         }
         
         
-        inputText.setText(exp);
+        codeArea.replaceText(exp);
         execute(exp);
         
     }
@@ -144,26 +131,12 @@ public class MainScreenController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
-       
+        instance = this;
         
-        obsCount = flowCount.getChildren();
-        Text t = new Text();
-        t.setFont(Font.font("System", 13));
-        t.setText("1\n");
-        obsCount.add(t);
-         lineCount=2;
-        scrollCount.setFitToHeight(true);
+        codeArea = new CodeArea();
+        codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
         
-        scrollCount.addEventFilter(ScrollEvent.SCROLL,new EventHandler<ScrollEvent>() {
-        @Override
-        public void handle(ScrollEvent event) {
-            if (event.getDeltaY() != 0) {
-                event.consume();
-            }
-        }
-        });
-        
-        
+        bordePane.setCenter(new VirtualizedScrollPane<>(codeArea));
         
         tcLexema.setCellValueFactory(new PropertyValueFactory<>("lexema"));
         tcToken.setCellValueFactory(new PropertyValueFactory<>("token"));
