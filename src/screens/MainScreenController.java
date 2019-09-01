@@ -162,11 +162,12 @@ public class MainScreenController implements Initializable {
             @Override
             public void updateItem(Object item, boolean empty) {
                 super.updateItem(item, empty);
-                System.out.println(item instanceof Erro);
-                if (item == null) {
-                    setStyle("");
-                } else if (item instanceof Erro) {
+                
+                
+                if (item instanceof Erro) {
                     setStyle("-fx-background-color: red;-fx-text-fill: white;");
+                }else{
+                    setStyle("");
                 }
             }
         });

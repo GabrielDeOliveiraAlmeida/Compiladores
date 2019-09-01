@@ -105,7 +105,7 @@ public class AnalisadorLexico {
                     if (lexema.matches(Classificacao.PALAVRA_RESERVDA.getRegex())) {
                         addLexema(classes.getClasse(lexema));
                     } else {
-                        Classificacao classif = Classificacao.getOf(lexema);
+                        Classificacao classif = Classificacao.checkErr(lexema);
                         if (classif.equals(Classificacao.IDENTIFICADOR_LONGO)) {
                             addErro(classif);
                         } else {
@@ -149,7 +149,7 @@ public class AnalisadorLexico {
                 case CARACTER_INVALIDO:
                     posInicial = contCol;
                     lexema = chAtual;
-//                    addErro(chClass);;
+                    addErro(chClass);
                     addLexema(chClass);
                     nextChar();
                     break;
