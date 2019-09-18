@@ -26,6 +26,7 @@ public class AnalisadorLexico {
     private ArrayList<Object> lexemas;
     private ClassificacaoReservadas classes;
     private int contCol;
+    private int contador;
 
     public AnalisadorLexico() {
         classes = new ClassificacaoReservadas();
@@ -40,6 +41,18 @@ public class AnalisadorLexico {
         posInicial = 0;
         posFinal = 0;
         linha = 1;
+        contador = 0;
+    }
+    
+    public boolean hasNext(){
+        if(contador<lexemas.size()) return true;
+        else return false;
+    }
+    
+    public Lexema nextToken(){
+        Object token = lexemas.get(contador++);
+        if(token instanceof Erro)   return (Lexema) token;
+        else return null;
     }
 
     public ArrayList<Object> execute(String text) {
@@ -67,17 +80,10 @@ public class AnalisadorLexico {
                     Se caso haja '.' representará um número com virgula, 
                     a segunda verificação serve para ignorar o segundo ponto;
                      */
-                    boolean aux = true;
-                    while (chClass.equals(Classificacao.INTEIRO)) {
+                    while (chClass.equals(Classificacao.INTEIRO) || chAtual.matches(Pattern.quote("."))) {
                         addChar();
-                        
-                        if (chAtual.matches(Pattern.quote("."))) {
-                            
-                            if (((lexema + textArray[cont]).matches(Classificacao.COM_VIRGULA.getRegex()))) {
-                                addChar();
-                            } else {
-                                break;
-                            }
+                        if (((lexema + textArray[cont - 1]).matches(Classificacao.COM_VIRGULA.getRegex()))) {
+                            addChar();
                         }
                     }
                     if (lexema.matches(Classificacao.INTEIRO.getRegex())) {
@@ -109,7 +115,7 @@ public class AnalisadorLexico {
                         if (classif.equals(Classificacao.IDENTIFICADOR_LONGO)) {
                             addErro(classif);
                         } else {
-                            addLexema(classif);
+                            addLexema(Classificacao.getOf(lexema));
                         }
                     }
                     break;
@@ -124,7 +130,7 @@ public class AnalisadorLexico {
                     addChar();
                     //Tratar comentario
                     if ((lexema + chAtual).matches(Classificacao.COMENTARIO.getRegex())) {;
-                        lexema="";
+                        lexema = "";
                         while (!chClass.equals(Classificacao.PULA_LINHA) && cont < textArray.length) {
                             nextChar();
                         }
@@ -150,7 +156,7 @@ public class AnalisadorLexico {
                     posInicial = contCol;
                     lexema = chAtual;
                     addErro(chClass);
-                    addLexema(chClass);
+                    //addLexema(chClass);
                     nextChar();
                     break;
 
@@ -158,6 +164,7 @@ public class AnalisadorLexico {
                     posInicial = contCol;
                     while (!chAtual.equals("}")) {
                         if (cont >= textArray.length) {
+                            lexema = "}";
                             addErro(Classificacao.DELIMITADOR_FECHA_CHAVE);
                             cont--;
                             break;
@@ -167,11 +174,11 @@ public class AnalisadorLexico {
                     nextChar();
                     break;
 //                    
-//                default:
-//                    posInicial = cont;
-//                    lexema = chAtual;
-//                    cont++;
-//                    addLexema(chClass);
+                default:
+                    posInicial = cont;
+                    lexema = chAtual;
+                    addErro(chClass);
+                    nextChar();
 //                    cont--;
 //                    nextChar();
             }

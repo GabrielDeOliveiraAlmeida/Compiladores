@@ -28,7 +28,9 @@ public enum Classificacao {
     
     //ERROS
     INTEIRO_LONGO("0|[1-9][0-9]{10,}"),
-    COM_VIRGULA_LONGO("(0|([1-9][0-9]*))(\\.[0-9]{10,})?$"),
+    COM_VIRGULA_LONGO_ANTES("(0|([1-9][0-9]{10,}))(\\.[0-9]{1,10})?$"),
+    COM_VIRGULA_LONGO_DEPOIS("(0|([1-9][0-9]{1,10}))(\\.[0-9]{10,})?$"),
+    COM_VIRGULA_LONGO_ANTES_DEPOIS("(0|([1-9][0-9]{10,}))(\\.[0-9]{10,})?$"),
     IDENTIFICADOR_LONGO("[_|a-z|A-Z][a-z|A-Z|0-9|_]{19,}"),
     
     PALAVRA_RESERVADA_IF("if"),
@@ -101,7 +103,9 @@ public enum Classificacao {
     
     public static Classificacao checkErr(String str){
         if(str.matches(Classificacao.INTEIRO_LONGO.getRegex())) return Classificacao.INTEIRO_LONGO;
-        else if(str.matches(Classificacao.COM_VIRGULA_LONGO.getRegex())) return Classificacao.COM_VIRGULA_LONGO;
+        else if(str.matches(Classificacao.COM_VIRGULA_LONGO_ANTES.getRegex())) return Classificacao.COM_VIRGULA_LONGO_ANTES;
+        else if(str.matches(Classificacao.COM_VIRGULA_LONGO_DEPOIS.getRegex())) return Classificacao.COM_VIRGULA_LONGO_DEPOIS;
+        else if(str.matches(Classificacao.COM_VIRGULA_LONGO_ANTES_DEPOIS.getRegex())) return Classificacao.COM_VIRGULA_LONGO_ANTES_DEPOIS;
         else if(str.matches(Classificacao.IDENTIFICADOR_LONGO.getRegex())) return Classificacao.IDENTIFICADOR_LONGO;
         else return Classificacao.DESCONHECIDO;
     }

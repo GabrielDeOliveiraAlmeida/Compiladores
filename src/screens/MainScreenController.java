@@ -8,6 +8,7 @@ package screens;
 import analisadorLexico.AnalisadorLexico;
 import analisadorLexico.Erro;
 import analisadorLexico.Lexema;
+import analise.Analise;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -88,7 +89,7 @@ public class MainScreenController implements Initializable {
     private BorderPane bordePane;
 
     private ArrayList<Object> lex;
-    private AnalisadorLexico ana;
+    private Analise ana;
     private ObservableList<Object> obsListLex;
     private File file;
     private ObservableList obsCount;
@@ -98,7 +99,8 @@ public class MainScreenController implements Initializable {
     public void execute(String exp) {
 
         //lex = calculadoralexico.CalculadoraLexico.execute(exp);
-        lex = ana.execute(exp);
+        lex = ana.executeLex(exp);
+        ana.executeSint(lex);
         obsListLex = FXCollections.observableArrayList(lex);
         tabela.setItems(obsListLex);
         
@@ -165,13 +167,15 @@ public class MainScreenController implements Initializable {
                 
                 
                 if (item instanceof Erro) {
-                    setStyle("-fx-background-color: red;-fx-text-fill: white;");
+                    setStyle(" -fx-background-color: red;"
+                            + " -fx-text-fill: white;"
+                            + "-fx-font-weight: bold; ");
                 }else{
                     setStyle("");
                 }
             }
         });
-        ana = new AnalisadorLexico();
+        ana = new Analise();
 
     }
 
