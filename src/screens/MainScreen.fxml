@@ -8,15 +8,16 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="702.0" prefWidth="922.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="screens.MainScreenController">
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="841.0" prefWidth="924.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="screens.MainScreenController">
    <children>
-      <VBox layoutY="3.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="702.0" prefWidth="922.0">
+      <VBox layoutY="3.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="841.0" prefWidth="924.0">
          <children>
             <MenuBar>
               <menus>
@@ -27,13 +28,13 @@
                 </Menu>
               </menus>
             </MenuBar>
-            <VBox prefHeight="674.0" prefWidth="919.0">
+            <VBox prefHeight="813.0" prefWidth="924.0">
                <children>
                   <HBox alignment="CENTER" prefHeight="481.0" prefWidth="934.0">
                      <children>
                         <BorderPane fx:id="bordePane" prefHeight="481.0" prefWidth="700.0">
                            <top>
-                              <Label text="Digite a expressão" BorderPane.alignment="CENTER">
+                              <Label text="Compiladores 2019" BorderPane.alignment="CENTER">
                                  <font>
                                     <Font size="18.0" />
                                  </font>
@@ -52,7 +53,24 @@
                         </BorderPane>
                      </children>
                   </HBox>
-                  <HBox alignment="CENTER" prefHeight="192.0" prefWidth="901.0">
+                  <HBox alignment="CENTER" prefHeight="226.0" prefWidth="924.0">
+                     <VBox.margin>
+                        <Insets bottom="10.0" />
+                     </VBox.margin>
+                     <children>
+                        <VBox alignment="CENTER" prefHeight="168.0" prefWidth="700.0">
+                           <children>
+                              <Label text="Console">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextArea fx:id="console" prefHeight="168.0" prefWidth="378.0" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="271.0" prefWidth="937.0">
                      <children>
                         <TableView fx:id="tabela" prefHeight="192.0" prefWidth="700.0">
                           <columns>

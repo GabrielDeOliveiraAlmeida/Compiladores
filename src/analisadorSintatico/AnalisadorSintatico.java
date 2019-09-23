@@ -9,6 +9,7 @@ import analisadorLexico.Classificacao;
 import analisadorLexico.Lexema;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import screens.MainScreenController;
 
 /**
  *
@@ -33,6 +34,7 @@ public class AnalisadorSintatico {
         System.out.println("---------Iniciando Analise Sintatica -----");
         nextLexema();
         program();
+        setConsole(erros.toString());
     }
 
     public AnalisadorSintatico() {
@@ -438,6 +440,10 @@ public class AnalisadorSintatico {
     private boolean relacao() {
         return checkToken(Classificacao.OPERADOR_MENOR_IGUAL) || checkToken(Classificacao.OPERADOR_MENOR) || checkToken(Classificacao.OPERADOR_MAIOR)
                 || checkToken(Classificacao.OPERADOR_MAIOR_IGUAL) || checkToken(Classificacao.OPERADOR_IGUAL) || checkToken(Classificacao.OPERADOR_DIFERENTE);
+    }
+    
+    private void setConsole(String message){
+        MainScreenController.instance.setConsole(message);
     }
 
 }

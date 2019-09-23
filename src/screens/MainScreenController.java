@@ -20,6 +20,7 @@ import java.util.ResourceBundle;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 
 import javafx.collections.ObservableList;
@@ -60,6 +61,9 @@ public class MainScreenController implements Initializable {
     public static MainScreenController instance;
     @FXML
     private TextArea inputText;
+    
+    @FXML
+    private TextArea console;
 
     @FXML
     private Button btn;
@@ -138,6 +142,16 @@ public class MainScreenController implements Initializable {
         }
 
     }
+    
+    public void setConsole(String message){
+     
+        Platform.runLater(new Runnable() {
+            @Override public void run() {
+                console.appendText (message);
+            }
+        });
+        
+    }
 
     /**
      * Initializes the controller class.
@@ -146,7 +160,8 @@ public class MainScreenController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
         instance = this;
-
+        
+        console.setEditable(false);
         codeArea = new CodeArea();
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
 
