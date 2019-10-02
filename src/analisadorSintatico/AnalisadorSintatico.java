@@ -9,6 +9,7 @@ import analisadorLexico.Classificacao;
 import analisadorLexico.Lexema;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import screens.MainScreenController;
 
 /**
  *
@@ -18,13 +19,15 @@ public class AnalisadorSintatico {
 
     private ArrayList<Object> lexemas;
     private Lexema lexAtual;
-    private int cont;
+    private static int cont;
     private int tam;
-
-
+    private String grammarCheck;
     private ArrayList<ErroSint> erros;
 
+    private String expr;
+
     public void execute(ArrayList<Object> lexemas) {
+        grammarCheck = "\n Analise imcompleta";
         erros = new ArrayList<>();
         cont = 0;
         tam = lexemas.size();
@@ -33,17 +36,23 @@ public class AnalisadorSintatico {
         System.out.println("---------Iniciando Analise Sintatica -----");
         nextLexema();
         program();
+        setConsole(erros.toString() + grammarCheck);
+    }
+
+    private void setConsole(String message) {
+        MainScreenController.instance.setConsole(message);
     }
 
     public AnalisadorSintatico() {
 
     }
 
-    private void setCont(int cont){
+    private void setCont(int cont) {
         this.cont = cont;
         lexAtual = (Lexema) lexemas.get(this.cont++);
         System.out.println("Retrocesso de Lexema = " + lexAtual.getLexema());
     }
+
     private void nextLexema() {
 //        while(cont < tam && lexemas.get(cont) instanceof Erro){;
 //            cont++;
@@ -52,6 +61,10 @@ public class AnalisadorSintatico {
             lexAtual = (Lexema) lexemas.get(cont++);
             System.out.println("Lexema = " + lexAtual.getLexema());
         }
+    }
+
+    private void backLexema() {
+        lexAtual = (Lexema) lexemas.get(--cont);
     }
 
     private boolean hasNext() {
@@ -75,7 +88,7 @@ public class AnalisadorSintatico {
     }
 
     private boolean program() {
-        if (checkLexema("program")) {
+        if (checkToken(Classificacao.PALAVRA_RESERVADA_PROGRAM)) {
             nextLexema();
             if (checkToken(Classificacao.IDENTIFICADOR)) {
                 nextLexema();
@@ -85,6 +98,7 @@ public class AnalisadorSintatico {
                     bloco();
                     nextLexema();
                     if (checkToken(Classificacao.DELIMITADOR_PONTO) && !hasNext()) {
+                        grammarCheck = "\n Analise sintática completa";
                         System.out.println("Analise Sintatica Completa");
                     }
                     return true;
@@ -98,11 +112,11 @@ public class AnalisadorSintatico {
     private void bloco() {
         declaracao();
         System.out.println("-------Declaração Ok------------");
-        if(subRotinas()){
-            System.out.println(lexAtual.getLexema());
+        if (subRotinas()) {
+            System.out.println("sbusbusub= " + lexAtual.getLexema());
             if (checkToken(Classificacao.DELIMITADOR_PONTO_VIRGULA)) {
                 nextLexema();
-            }else{
+            } else {
                 addErro(Classificacao.DELIMITADOR_PONTO_VIRGULA);
             }
         }
@@ -148,7 +162,7 @@ public class AnalisadorSintatico {
 
     //SUB-rotinas
     private boolean subRotinas() {
-        if (checkLexema("procedure")) {
+        if (checkToken(Classificacao.PALAVRA_RESERVADA_PROCEDURE)) {
             nextLexema();
             if (checkToken(Classificacao.IDENTIFICADOR)) {
                 nextLexema();
@@ -156,11 +170,11 @@ public class AnalisadorSintatico {
                 if (checkToken(Classificacao.DELIMITADOR_PONTO_VIRGULA)) {
                     nextLexema();
                     bloco();
-                    nextLexema();
+                    return true;
                 } else {
-                    System.out.println("Erro Parametros formais - espera-se ponto e virgula, taok");
+                     addErro(Classificacao.DELIMITADOR_PONTO_VIRGULA);
+                    return true;
                 }
-                return true;
             }
         } else {
             System.out.println("Não há procedures");
@@ -213,39 +227,57 @@ public class AnalisadorSintatico {
     //comandos
     private boolean comandoComposto() {
         System.out.println("ComandoComposto ---- " + lexAtual.getLexema());
-        if (!checkLexema("begin")) {
+        if (!checkToken(Classificacao.PALAVRA_RESERVADA_BEGIN)) {
             addErro(Classificacao.PALAVRA_RESERVADA_BEGIN);
             return false;
         } else {
             nextLexema();
-            while (comando()) {
+            comando();
+//            if(checkToken(Classificacao.DELIMITADOR_PONTO_VIRGULA)) {;
+//                //nextLexema();
+//                comandoComposto();
+//            }else if(checkToken(Classificacao.PALAVRA_RESERVADA_END)){
+//                return false;
+//            }else{
+//                addErro(Classificacao.DELIMITADOR_PONTO_VIRGULA);
+//            }
+            System.out.println("Comando Composto possui  --- " + lexAtual.getLexema());
+            while (!checkToken(Classificacao.PALAVRA_RESERVADA_END)) {
+                if (!checkToken(Classificacao.DELIMITADOR_PONTO_VIRGULA)) {
+                    addErro(Classificacao.DELIMITADOR_PONTO_VIRGULA);
+                    backLexema();
+                }
                 nextLexema();
-                if (checkLexema("end")) {
-                    return true;
+                if(!comando()){
+                    return false;
                 }
             }
+            nextLexema();
             return true;
         }
     }
 
     private boolean comando() {
-        System.out.println("Comando -----------" );
+        System.out.println("Comando ----------- " + lexAtual.getLexema());
         boolean aux = false;
-        if (atribuicao()) {
+        if (checkToken(Classificacao.PALAVRA_RESERVADA_END)) {
+            return false;
+        } else if (atribuicao()) {
             aux = true;
-        } else if(condicional()){
+        } else if (condicional()) {
             aux = true;
-        } else if(repeticao()){
+        } else if (repeticao()) {
             aux = true;
-        } else if(procedimento()){
+        } else if (procedimento()) {
             aux = true;
-        }else if (comandoComposto()) {
+        } else if (comandoComposto()) {
             aux = true;
         }
-        if (aux && checkToken(Classificacao.DELIMITADOR_PONTO_VIRGULA)) {
-            return true;
-        }
-        return false;
+//        }else{
+//            addErro(Classificacao.DELIMITADOR_PONTO_VIRGULA);
+//            return false;
+//        }
+        return aux;
     }
 
     private boolean condicional() {
@@ -253,24 +285,32 @@ public class AnalisadorSintatico {
         if (checkToken(Classificacao.PALAVRA_RESERVADA_IF)) {
             nextLexema();
             if (expressao()) {
+                System.out.println("Expressao condicional ---- OK ");
                 if (checkToken(Classificacao.PALAVRA_RESERVADA_THEN)) {
                     nextLexema();
-                    if (comando()) {//se Houver else
+                    comando();
+                    System.out.println("Condicional - " + lexAtual.getLexema());
+                    //nextLexema();
+                    if (checkToken(Classificacao.PALAVRA_RESERVADA_ELSE)) {//se Houver else
                         nextLexema();
-                        if (checkToken(Classificacao.PALAVRA_RESERVADA_ELSE)) {
-                            nextLexema();
-                            if (comando()) {
-                                return true;
-                            }
-                        }else{
+                        if (comando()) {
                             return true;
                         }
+                    } else {
+                        //backLexema();
+//                        if (checkToken(Classificacao.DELIMITADOR_PONTO_VIRGULA)) {;
+//                            setCont(cont - 1);
+//                        } else {
+//                            setCont(cont - 2);
+//                        }
+                        return true;
                     }
-                }else{
+
+                } else {
                     addErro(Classificacao.PALAVRA_RESERVADA_THEN);
                     return false;
                 }
-            }else{;
+            } else {;
                 //Erro <expressão>
             }
         }
@@ -279,18 +319,18 @@ public class AnalisadorSintatico {
 
     private boolean repeticao() {
 //        System.out.println("Repetição ---- " + lexAtual.getLexema());
-        if(checkToken(Classificacao.PALAVRA_RESERVADA_WHILE)){
+        if (checkToken(Classificacao.PALAVRA_RESERVADA_WHILE)) {
             nextLexema();
-            if(expressao()){
-                if(checkToken(Classificacao.PALAVRA_RESERVADA_DO)){
+            if (expressao()) {
+                System.out.println("Expressão while ----------- OK");
+                if (checkToken(Classificacao.PALAVRA_RESERVADA_DO)) {
                     nextLexema();
-                    if(comando()){
-                        return true;
-                    }else return true;
-                }else{
+                    comando();
+                    return true;
+                } else {
                     addErro(Classificacao.PALAVRA_RESERVADA_DO);
                 }
-            }else{
+            } else {
                 System.out.println("Erro falta expressão");
                 return false;
             }
@@ -298,27 +338,28 @@ public class AnalisadorSintatico {
         return false;
     }
 
-    private boolean procedimento(){
+    private boolean procedimento() {
 //        System.out.println("Procedimento ---- " + lexAtual.getLexema() + " --- " + lexAtual.getToken().toString());;
-        if(checkToken(Classificacao.IDENTIFICADOR)){
+        if (checkToken(Classificacao.IDENTIFICADOR)) {
             nextLexema();
-            if(checkToken(Classificacao.DELIMITADOR_ABRE_PARENTESE)){
+            if (checkToken(Classificacao.DELIMITADOR_ABRE_PARENTESE)) {
                 nextLexema();
-                if(checkToken(Classificacao.DELIMITADOR_FECHA_PARENTESE)){
+                listaExpressoes();
+                if (checkToken(Classificacao.DELIMITADOR_FECHA_PARENTESE)) {
                     nextLexema();
                     return true;
-                }else{
+                } else {
                     addErro(Classificacao.DELIMITADOR_FECHA_PARENTESE);
                 }
-            }else{
+            } else {
                 addErro(Classificacao.DELIMITADOR_ABRE_PARENTESE);
             }
         }
         return false;
     }
-    
+
     private boolean atribuicao() {
-        int aux = cont-1;
+        int aux = cont - 1;
 //        System.out.println("Atribuicao ---- " + lexAtual.getLexema());
         if (checkToken(Classificacao.IDENTIFICADOR)) {
             nextLexema();
@@ -326,9 +367,9 @@ public class AnalisadorSintatico {
                 System.out.println("Atribuicao na variavel ");
                 nextLexema();
                 expressao();
-                System.out.println("Fim da atribuicao");
+                System.out.println("Fim da atribuicao == " + expr);
                 return true;
-            }else{
+            } else {
                 setCont(aux);
                 return false;
             }
@@ -352,11 +393,9 @@ public class AnalisadorSintatico {
             nextLexema();
         }
         if (termo()) {
-            nextLexema();
             while (sinal() || checkToken(Classificacao.OPERADOR_OR)) {
                 nextLexema();
                 if (termo()) {
-                    nextLexema();
                     return true;
                 } else {
                     return false;
@@ -371,11 +410,11 @@ public class AnalisadorSintatico {
 
     private boolean termo() {
         if (fator()) {
-            while (checkToken(Classificacao.OPERADOR_AND) || checkToken(Classificacao.OPERADOR_DIV) || 
-                    checkToken(Classificacao.OPERADOR_MULTIPLICACAO)) {
-                System.out.println(lexAtual.getLexema());
+            nextLexema();
+            if (checkToken(Classificacao.OPERADOR_AND) || checkToken(Classificacao.OPERADOR_DIV)
+                    || checkToken(Classificacao.OPERADOR_MULTIPLICACAO)) {
                 nextLexema();
-                fator();
+                termo();
             }
             return true;
         } else {
@@ -385,7 +424,6 @@ public class AnalisadorSintatico {
     }
 
     private boolean fator() {
-        int contador = cont;
         if (variavel() || numero() || exprParenteses() || notFator() || preDeclaradas()) {
             return true;
         } else {
@@ -416,7 +454,7 @@ public class AnalisadorSintatico {
             expressao();
             if (checkToken(Classificacao.DELIMITADOR_FECHA_PARENTESE)) {
                 return true;
-            }else{
+            } else {
                 addErro(Classificacao.DELIMITADOR_FECHA_PARENTESE);
                 return false;
             }
@@ -440,4 +478,13 @@ public class AnalisadorSintatico {
                 || checkToken(Classificacao.OPERADOR_MAIOR_IGUAL) || checkToken(Classificacao.OPERADOR_IGUAL) || checkToken(Classificacao.OPERADOR_DIFERENTE);
     }
 
+    private boolean listaExpressoes() {
+        expressao();
+        System.out.println(lexAtual.getLexema());
+        while (checkToken(Classificacao.DELIMITADOR_VIRGULA)) {
+            nextLexema();
+            expressao();
+        }
+        return true;
+    }
 }

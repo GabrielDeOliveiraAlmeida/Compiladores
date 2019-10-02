@@ -95,7 +95,7 @@ public class ClassificacaoReservadas {
         tabela.put("<=", OPERADOR_MENOR_IGUAL);
         tabela.put(":=", OPERADOR_ATRIBUICAO);
         tabela.put("mod", OPERADOR_MOD);
-        tabela.put("mod", OPERADOR_DIV);
+        tabela.put("div", OPERADOR_DIV);
         tabela.put("in", OPERADOR_IN);
         tabela.put("+", OPERADOR_SOMA);
         tabela.put("-", OPERADOR_MENOS);   

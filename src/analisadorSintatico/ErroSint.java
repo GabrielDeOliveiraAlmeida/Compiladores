@@ -20,12 +20,11 @@ public class ErroSint {
         this.lexema = lex;
         this.esperado = esperado;
     }
-    
-    
-    
-    
 
-            
-    
-    
+    @Override
+    public String toString() {
+        return "ErroSint{ " + " lexema = " + lexema.getLexema() + " linha = " + lexema.getLinha() + " , esperado = " + esperado.toString() + " } \n";
+    }
+
+  
 }

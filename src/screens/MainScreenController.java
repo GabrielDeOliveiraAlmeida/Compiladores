@@ -20,6 +20,7 @@ import java.util.ResourceBundle;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 
 import javafx.collections.ObservableList;
@@ -60,6 +61,9 @@ public class MainScreenController implements Initializable {
     public static MainScreenController instance;
     @FXML
     private TextArea inputText;
+    
+    @FXML
+    private TextArea console;
 
     @FXML
     private Button btn;
@@ -138,6 +142,17 @@ public class MainScreenController implements Initializable {
         }
 
     }
+    
+    public void setConsole(String message){
+     
+        Platform.runLater(new Runnable() {
+            @Override 
+            public void run() {
+                console.setText(message);
+            }
+        });
+        
+    }
 
     /**
      * Initializes the controller class.
@@ -146,10 +161,47 @@ public class MainScreenController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
         instance = this;
-
+        
+        console.setEditable(false);
         codeArea = new CodeArea();
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
 
+        codeArea.replaceText("program correto;\n" +
+"int a, b, c;\n" +
+"boolean d, e, f;\n" +
+"\n" +
+"procedure proc(var a1 : int);\n" +
+"int a, b, c;\n" +
+"boolean d, e, f;\n" +
+"begin\n" +
+"	a:=1;\n" +
+"	if (a<1) then\n" +
+"		a:=12\n" +
+"end;\n" +
+"\n" +
+"begin\n" +
+"	a:=2;\n" +
+"	b:=10;\n" +
+"	c:=11;\n" +
+"	a:=b+c;\n" +
+"	d:=true;\n" +
+"	e:=false;\n" +
+"	f:=true;\n" +
+"	read(a);\n" +
+"	write(b);\n" +
+"	if (d) then\n" +
+"	begin\n" +
+"		a:=20;\n" +
+"		b:=10*c;\n" +
+"		c:=a div b\n" +
+"	end;\n" +
+"	while (a>1) do\n" +
+"	begin\n" +
+"		if (b>10) then\n" +
+"			b:=2;\n" +
+"		a:=a-1\n" +
+"	end\n" +
+"end.");
         bordePane.setCenter(new VirtualizedScrollPane<>(codeArea));
 
         tcLexema.setCellValueFactory(new PropertyValueFactory<>("lexema"));
