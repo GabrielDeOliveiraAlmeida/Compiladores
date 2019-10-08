@@ -427,7 +427,7 @@ public class AnalisadorSintatico {
         if (variavel() || numero() || exprParenteses() || notFator() || preDeclaradas()) {
             return true;
         } else {
-            System.out.println("Erro fator");
+            addErro(Classificacao.EXPRESSAO);
             return false;
         }
     }

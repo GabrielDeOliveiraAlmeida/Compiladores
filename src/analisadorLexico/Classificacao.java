@@ -78,7 +78,8 @@ public enum Classificacao {
     DELIMITADOR_PONTO_VIRGULA(Pattern.quote(";")),
     DELIMITADOR_DOIS_PONTO(Pattern.quote(":")),
     
-    DESCONHECIDO(Pattern.quote(""));
+    DESCONHECIDO(Pattern.quote("")),
+    EXPRESSAO("");
 
     
     
