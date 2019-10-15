@@ -27,7 +27,7 @@ public class AnalisadorSintatico {
     private String expr;
 
     public void execute(ArrayList<Object> lexemas) {
-        grammarCheck = "\n Analise imcompleta";
+        grammarCheck = "\n Analise incompleta";
         erros = new ArrayList<>();
         cont = 0;
         tam = lexemas.size();
@@ -87,6 +87,34 @@ public class AnalisadorSintatico {
         erros.add(new ErroSint(lexAtual, esperado));
     }
 
+    private boolean match(String classe) {
+        return classe.matches(Classificacao.PALAVRA_RESERVDA.getRegex());
+    }
+
+    private void descartar() {
+        while (true) {
+            if (checkToken(Classificacao.DELIMITADOR_PONTO_VIRGULA)) {
+                break;
+            }
+            if (match(lexAtual.getLexema())) {
+                break;
+            }
+            System.out.println("Descartando Token: " + lexAtual.getLexema() + " Classe: " + lexAtual.getToken().toString());
+            nextLexema();
+        }
+        nextLexema();
+        System.out.println("Erro Program -- recuperação da analise sintatica: " + lexAtual.getLexema() + " Classe: " + lexAtual.getToken().toString());
+    }
+
+    private void endProgram() {
+        nextLexema();
+        if (!hasNext() && !checkToken(Classificacao.DELIMITADOR_PONTO)) {
+            addErro(Classificacao.DELIMITADOR_PONTO);
+        }
+        grammarCheck = "\n Analise sintática completa";
+        System.out.println("Analise Sintatica Completa");
+    }
+
     private boolean program() {
         if (checkToken(Classificacao.PALAVRA_RESERVADA_PROGRAM)) {
             nextLexema();
@@ -96,16 +124,19 @@ public class AnalisadorSintatico {
                     System.out.println("Program Ok");
                     nextLexema();
                     bloco();
-                    nextLexema();
-                    if (checkToken(Classificacao.DELIMITADOR_PONTO) && !hasNext()) {
-                        grammarCheck = "\n Analise sintática completa";
-                        System.out.println("Analise Sintatica Completa");
-                    }
-                    return true;
+                    endProgram();
+                } else {
+                    addErro(Classificacao.DELIMITADOR_PONTO_VIRGULA);
+                    bloco();
+                    endProgram();
                 }
             }
+        } else {
+            addErro(Classificacao.PALAVRA_RESERVADA_PROGRAM);
+            descartar();
+            bloco();
+            endProgram();
         }
-        addErro(Classificacao.PALAVRA_RESERVADA_PROGRAM);
         return false;
     }
 
@@ -135,6 +166,7 @@ public class AnalisadorSintatico {
                 nextLexema();
             } else {
                 addErro(Classificacao.DELIMITADOR_PONTO_VIRGULA);
+                descartar();
             }
         }
 //        if(!passei_uma_vez_pelo_menos) addErro(Classificacao.PALAVRA_RESERVADA_VAR);
@@ -172,9 +204,12 @@ public class AnalisadorSintatico {
                     bloco();
                     return true;
                 } else {
-                     addErro(Classificacao.DELIMITADOR_PONTO_VIRGULA);
+                    addErro(Classificacao.DELIMITADOR_PONTO_VIRGULA);
                     return true;
                 }
+            }else{
+                addErro(Classificacao.IDENTIFICADOR);
+                descartar();
             }
         } else {
             System.out.println("Não há procedures");
@@ -229,6 +264,8 @@ public class AnalisadorSintatico {
         System.out.println("ComandoComposto ---- " + lexAtual.getLexema());
         if (!checkToken(Classificacao.PALAVRA_RESERVADA_BEGIN)) {
             addErro(Classificacao.PALAVRA_RESERVADA_BEGIN);
+            descartar();
+            bloco();
             return false;
         } else {
             nextLexema();
@@ -248,7 +285,7 @@ public class AnalisadorSintatico {
                     backLexema();
                 }
                 nextLexema();
-                if(!comando()){
+                if (!comando()) {
                     return false;
                 }
             }
