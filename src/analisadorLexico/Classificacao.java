@@ -79,7 +79,9 @@ public enum Classificacao {
     DELIMITADOR_DOIS_PONTO(Pattern.quote(":")),
     
     DESCONHECIDO(Pattern.quote("")),
-    EXPRESSAO("");
+    EXPRESSAO(""),
+    RESERVADA("if|begin|end|while|"
+            + "procedure|char|integer|int|boolean|const|var");
 
     
     
