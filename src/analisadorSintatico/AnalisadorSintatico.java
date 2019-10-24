@@ -94,17 +94,37 @@ public class AnalisadorSintatico {
 
     private void descartar() {
         while (true) {
+            if(!hasNext()){
+                return;
+            }
             if (checkToken(Classificacao.DELIMITADOR_PONTO_VIRGULA)) {
                 break;
             }
             if (match(lexAtual.getLexema())) {
                 break;
             }
+            
             System.out.println("Descartando Token: " + lexAtual.getLexema() + " Classe: " + lexAtual.getToken().toString());
             nextLexema();
         }
         nextLexema();
         System.out.println("Erro Program -- recuperação da analise sintatica: " + lexAtual.getLexema() + " Classe: " + lexAtual.getToken().toString());
+    }
+    
+    
+    private boolean descartarAte(Classificacao... classes){
+        boolean isDescartar = false;
+        while(true){
+            for(Classificacao classe : classes){
+                if (checkToken(classe)) {
+                    return isDescartar;
+                }    
+            }
+            isDescartar = true;
+            nextLexema();
+            System.out.println("Descartando Token: " + lexAtual.getLexema() + " Classe: " + lexAtual.getToken().toString());            nextLexema();
+            if(!hasNext()) return isDescartar;
+        }
     }
 
     private void endProgram() {
@@ -171,6 +191,10 @@ public class AnalisadorSintatico {
                 descartar();
             }
         }
+        if(descartarAte(Classificacao.PALAVRA_RESERVADA_BEGIN, Classificacao.PALAVRA_RESERVADA_PROCEDURE)){
+            addErro(Classificacao.PALAVRA_RESERVADA_BEGIN);
+        }
+        
 //        if(!passei_uma_vez_pelo_menos) addErro(Classificacao.PALAVRA_RESERVADA_VAR);
     }
 
@@ -285,8 +309,8 @@ public class AnalisadorSintatico {
         System.out.println("ComandoComposto ---- " + lexAtual.getLexema());
         if (!checkToken(Classificacao.PALAVRA_RESERVADA_BEGIN)) {
             //addErro(Classificacao.PALAVRA_RESERVADA_BEGIN);
-            //descartar();
-            //bloco();
+//            descartar();
+//            bloco();
             return false;
         } else {
             nextLexema();
@@ -301,6 +325,7 @@ public class AnalisadorSintatico {
 //            }
             System.out.println("Comando Composto possui  --- " + lexAtual.getLexema());
             while (!checkToken(Classificacao.PALAVRA_RESERVADA_END)) {
+
                 if (!checkToken(Classificacao.DELIMITADOR_PONTO_VIRGULA)) {
                     addErro(Classificacao.DELIMITADOR_PONTO_VIRGULA);
                     backLexema();
