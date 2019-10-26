@@ -81,7 +81,9 @@ public enum Classificacao {
     DESCONHECIDO(Pattern.quote("")),
     EXPRESSAO(""),
     RESERVADA("if|begin|end|while|"
-            + "procedure|char|integer|int|boolean|const|var");
+            + "procedure|char|integer|int|boolean|const|var"),
+    EOF("");
+    
 
     
     

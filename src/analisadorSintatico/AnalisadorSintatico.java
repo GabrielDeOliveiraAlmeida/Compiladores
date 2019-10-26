@@ -101,13 +101,14 @@ public class AnalisadorSintatico {
                 break;
             }
             if (match(lexAtual.getLexema())) {
+                //nextLexema();
                 break;
             }
             
             System.out.println("Descartando Token: " + lexAtual.getLexema() + " Classe: " + lexAtual.getToken().toString());
             nextLexema();
         }
-        nextLexema();
+        
         System.out.println("Erro Program -- recuperação da analise sintatica: " + lexAtual.getLexema() + " Classe: " + lexAtual.getToken().toString());
     }
     
@@ -129,10 +130,13 @@ public class AnalisadorSintatico {
 
     private void endProgram() {
         nextLexema();
-        if (!hasNext() && !checkToken(Classificacao.DELIMITADOR_PONTO)) {
-            addErro(Classificacao.DELIMITADOR_PONTO);
-        }
-        grammarCheck = "\n Analise sintática completa";
+        if(!hasNext()){
+            grammarCheck = "\n Analise sintática completa";
+            if(!checkToken(Classificacao.DELIMITADOR_PONTO)) {
+               addErro(Classificacao.DELIMITADOR_PONTO);
+            }
+        }    
+        
         System.out.println("Analise Sintatica Completa");
     }
 
@@ -367,7 +371,7 @@ public class AnalisadorSintatico {
 //        }
         return aux;
     }
-
+    
     private boolean condicional() {
 //        System.out.println("Condição ---- " + lexAtual.getLexema());
         if (checkToken(Classificacao.PALAVRA_RESERVADA_IF)) {
@@ -396,7 +400,10 @@ public class AnalisadorSintatico {
 
                 } else {
                     addErro(Classificacao.PALAVRA_RESERVADA_THEN);
-                    return false;
+                    descartar();
+                    comando();
+                    System.out.println("Condicional - " + lexAtual.getLexema());
+                    return true;
                 }
             } else {;
                 //Erro <expressão>
@@ -418,7 +425,7 @@ public class AnalisadorSintatico {
                 } else {
                     addErro(Classificacao.PALAVRA_RESERVADA_DO);
                     descartar();
-                    backLexema();
+                    comando();
                     return true;
                 }
             } else {
@@ -467,6 +474,9 @@ public class AnalisadorSintatico {
                 System.out.println("Fim da atribuicao == " + expr);
                 return true;
             } else {
+//                if(checkToken(Classificacao.DELIMITADOR_PONTO_VIRGULA)){
+//                    addErro(Classificacao.OPERADOR_ATRIBUICAO);
+//                }
                 setCont(aux);
                 return false;
             }
