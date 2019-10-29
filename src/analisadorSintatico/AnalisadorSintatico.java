@@ -98,13 +98,13 @@ public class AnalisadorSintatico {
                 return;
             }
             if (checkToken(Classificacao.DELIMITADOR_PONTO_VIRGULA)) {
+                nextLexema();
                 break;
             }
             if (match(lexAtual.getLexema())) {
                 //nextLexema();
                 break;
             }
-            
             System.out.println("Descartando Token: " + lexAtual.getLexema() + " Classe: " + lexAtual.getToken().toString());
             nextLexema();
         }
@@ -123,7 +123,7 @@ public class AnalisadorSintatico {
             }
             isDescartar = true;
             nextLexema();
-            System.out.println("Descartando Token: " + lexAtual.getLexema() + " Classe: " + lexAtual.getToken().toString());            nextLexema();
+            System.out.println("Descartando Token: " + lexAtual.getLexema() + " Classe: " + lexAtual.getToken().toString());   
             if(!hasNext()) return isDescartar;
         }
     }
@@ -195,8 +195,15 @@ public class AnalisadorSintatico {
                 descartar();
             }
         }
-        if(descartarAte(Classificacao.PALAVRA_RESERVADA_BEGIN, Classificacao.PALAVRA_RESERVADA_PROCEDURE)){
+        Lexema aux = lexAtual;
+        if(descartarAte(Classificacao.PALAVRA_RESERVADA_BEGIN, Classificacao.PALAVRA_RESERVADA_PROCEDURE, Classificacao.PALAVRA_RESERVADA_INT, 
+                Classificacao.PALAVRA_RESERVADA_INTEGER, Classificacao.PALAVRA_RESERVADA_VAR, 
+                Classificacao.PALAVRA_RESERVADA_BOOLEAN, Classificacao.PALAVRA_RESERVADA_CHAR)){
+            Lexema aux2 = lexAtual;
+            lexAtual = aux;
             addErro(Classificacao.PALAVRA_RESERVADA_BEGIN);
+            lexAtual = aux2;
+            declaracao();
         }
         
 //        if(!passei_uma_vez_pelo_menos) addErro(Classificacao.PALAVRA_RESERVADA_VAR);
@@ -456,6 +463,7 @@ public class AnalisadorSintatico {
             } else {
                 addErro(Classificacao.DELIMITADOR_ABRE_PARENTESE);
                 descartar();
+                setCont(cont-2);
                 return true;
             }
         }
