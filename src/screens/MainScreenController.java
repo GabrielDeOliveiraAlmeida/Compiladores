@@ -168,23 +168,23 @@ public class MainScreenController implements Initializable {
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
 
         codeArea.replaceText("program correto;\n" +
-"int a, b, c;\n" +
+"int a;\n" +
 "boolean d, e, f;\n" +
+"real b, c;\n" +
+"\n" +
 "\n" +
 "procedure proc(var a1 : int);\n" +
-"int a, b, c;\n" +
-"boolean d, e, f;\n" +
+"int a;\n" +
 "begin\n" +
-"	a:=1;\n" +
-"	if (a<1) then\n" +
-"		a:=12\n" +
+"	a:=10;\n" +
+"	if (a1<a) then\n" +
+"		d:=true;\n" +
 "end;\n" +
 "\n" +
 "begin\n" +
 "	a:=2;\n" +
-"	b:=10;\n" +
-"	c:=11;\n" +
-"	a:=b+c;\n" +
+"	b:=10.5;\n" +
+"	c:=b+a;\n" +
 "	d:=true;\n" +
 "	e:=false;\n" +
 "	f:=true;\n" +
@@ -198,8 +198,8 @@ public class MainScreenController implements Initializable {
 "	end;\n" +
 "	while (a>1) do\n" +
 "	begin\n" +
-"		if (b>10) then\n" +
-"			b:=2;\n" +
+"		if (a>10) then\n" +
+"			b:=2.0;\n" +
 "		a:=a-1\n" +
 "	end\n" +
 "end.");

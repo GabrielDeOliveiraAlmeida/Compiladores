@@ -24,11 +24,11 @@ public class Simbolos<T> {
     public Simbolos() {
     }
 
-    public Simbolos(Lexema lex, Categoria categoria, int escopo, String tipo, int endereco) {
+    public Simbolos(Lexema lex, Categoria categoria, int escopo, String tipo, int endereco, boolean utilizada) {
         this.lex = lex;
         this.categoria = categoria;
         this.escopo = escopo;
-        this.utilizada = false;
+        this.utilizada = utilizada;
         this.tipo = tipo;
         this.endereco = endereco;
     }
