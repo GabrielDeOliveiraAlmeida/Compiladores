@@ -10,7 +10,7 @@ package analisadorSemantico;
  * @author gabriel
  */
 public enum ErroSem {
-    NAOUTILIZADO("nao foi utilizado"),
+    NAOUTILIZADO("Nao foi utilizado"),
     JADECLARADO("Já foi declarado"),
     NAOFOIDECLARADO("Não foi declarado"),
     PRECISAREAL("Precisa ser real"),
@@ -20,5 +20,9 @@ public enum ErroSem {
   
     private ErroSem(String err){
         this.err = err;
+    }
+    
+    public String getErro(){
+        return err;
     }
 }

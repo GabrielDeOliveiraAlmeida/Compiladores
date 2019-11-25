@@ -22,7 +22,7 @@ public class ErroSemantico {
 
     @Override
     public String toString() {
-        return "ErroSint{ " + " lexema = " + lexema.getLexema() + " linha = " + lexema.getLinha() + " , esperado = " + esperado.toString() + " } \n";
+        return "ErroSint{ " + " lexema = " + lexema.getLexema() + " linha = " + lexema.getLinha() + " , esperado = " + esperado.getErro() + " } \n";
     }
 
 }

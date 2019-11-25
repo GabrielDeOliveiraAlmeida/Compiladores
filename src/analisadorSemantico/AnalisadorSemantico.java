@@ -35,6 +35,7 @@ public class AnalisadorSemantico {
     private int endereco;
     private String auxTipo;
     private int auxEscopo;
+    private boolean parametro;
 
     public void execute(ArrayList<Object> lexemas) {
         grammarCheck = "\n Analise incompleta";
@@ -45,6 +46,7 @@ public class AnalisadorSemantico {
         cont = 0;
         escopo = 0;
         endereco = 0;
+        parametro = false;
         tam = lexemas.size();
         this.lexemas = lexemas;
         this.lexemas = lexemas.stream().filter(lex -> lex instanceof Lexema).collect(Collectors.toCollection(ArrayList::new));
@@ -56,7 +58,11 @@ public class AnalisadorSemantico {
         tabelaSimbolos.forEach((a) -> {
             System.out.println(a.getLex().getLexema() + " -- " + a.getLex().getToken().toString() + "--" + a.getCategoria() + "--"
                     + a.getTipo() + "-- " + String.valueOf(a.getEscopo()) + "--- utilizada: "+ a.isUtilizada());
+            if(!a.isUtilizada()){
+                addErroSemLex(a.getLex(), ErroSem.NAOUTILIZADO);
+            }
         });
+        
         System.out.println("Erros");
         errosSem.forEach((ErroSemantico err) -> {;
             System.out.println(err.toString());
@@ -117,6 +123,9 @@ public class AnalisadorSemantico {
         erros.add(new ErroSint(lexAtual, esperado));
     }
 
+    private void addErroSemLex(Lexema lex, ErroSem err){
+        errosSem.add(new ErroSemantico(lex, err));
+    }
     private void addErroSem(ErroSem err) {
         errosSem.add(new ErroSemantico(lexAtual, err));
     }
@@ -195,7 +204,7 @@ public class AnalisadorSemantico {
             addCode(Instrucao.INPP, -1);
             nextLexema();
             if (checkToken(Classificacao.IDENTIFICADOR)) {
-                addSimbolo(Categoria.Programa, "-", false);
+                addSimbolo(Categoria.Programa, "-", true);
                 nextLexema();
                 System.out.println("Program Ok");
                 nextLexema();
@@ -261,7 +270,8 @@ public class AnalisadorSemantico {
         boolean passei_uma_vez_pelo_menos = false;
         while (checkToken(Classificacao.IDENTIFICADOR)) {
             if (pesquisarSimbolo()) {
-                addSimbolo(Categoria.Variavel, ultimoTipo, true);
+                if(parametro)addSimbolo(Categoria.Variavel, ultimoTipo, true);
+                else addSimbolo(Categoria.Variavel, ultimoTipo, false);
                 addCode(Instrucao.AMEM, 1);
             } else {
                 addErroSem(ErroSem.JADECLARADO);
@@ -348,7 +358,9 @@ public class AnalisadorSemantico {
         if (checkLexema("var")) {
             getTipo();
             nextLexema();
+            parametro = true;
             listaIdentificadores();
+            parametro = false;
             if (checkToken(Classificacao.DELIMITADOR_DOIS_PONTO)) {
                 nextLexema();
             }
@@ -396,7 +408,7 @@ public class AnalisadorSemantico {
 
     private boolean writeread() {
         if (checkToken(Classificacao.IDENTIFICADOR) && lexAtual.getLexema().equals("write") || lexAtual.getLexema().equals("read")) {
-            addSimbolo(Categoria.io, "-", false);
+            addSimbolo(Categoria.io, "-", true);
             procedimento();
             return true;
         }
@@ -507,6 +519,7 @@ public class AnalisadorSemantico {
                 return false;
             } else {
                 auxTipo = "qualquer";
+                s.setUtilizada(true);
             }
             nextLexema();
             if (checkToken(Classificacao.DELIMITADOR_ABRE_PARENTESE)) {
