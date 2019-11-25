@@ -7,6 +7,7 @@ package analise;
 
 import analisadorLexico.AnalisadorLexico;
 import analisadorLexico.Lexema;
+import analisadorSemantico.AnalisadorSemantico;
 import analisadorSintatico.AnalisadorSintatico;
 import java.util.ArrayList;
 
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 public class Analise {
     public static AnalisadorLexico lex = new AnalisadorLexico();
     public static AnalisadorSintatico sint = new AnalisadorSintatico();
-    
+    public static AnalisadorSemantico sem = new AnalisadorSemantico();
     public Analise(){
     }
     
@@ -27,5 +28,9 @@ public class Analise {
     
     public void executeSint(ArrayList<Object> lex){
         sint.execute(lex);
+    }
+    
+    public void executeSem(ArrayList<Object> lex){
+        sem.execute(lex);
     }
 }

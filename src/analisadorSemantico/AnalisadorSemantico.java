@@ -3,19 +3,21 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package analisadorSintatico;
+package analisadorSemantico;
 
 import analisadorLexico.Classificacao;
 import analisadorLexico.Lexema;
+import analisadorSintatico.ErroSint;
 import java.util.ArrayList;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import screens.MainScreenController;
 
 /**
  *
- * @author cc161255426
+ * @author gabriel
  */
-public class AnalisadorSintatico {
+public class AnalisadorSemantico {
 
     private ArrayList<Object> lexemas;
     private Lexema lexAtual;
@@ -23,27 +25,54 @@ public class AnalisadorSintatico {
     private int tam;
     private String grammarCheck;
     private ArrayList<ErroSint> erros;
+    private ArrayList<ErroSemantico> errosSem;
     private boolean aux;
     private String expr;
+    private ArrayList<Codigo> areaCode;
+    private ArrayList<Simbolos> tabelaSimbolos;
+    private int escopo;
+    private String ultimoTipo;
+    private int endereco;
+    private String auxTipo;
+    private int auxEscopo;
 
     public void execute(ArrayList<Object> lexemas) {
         grammarCheck = "\n Analise incompleta";
         erros = new ArrayList<>();
+        errosSem = new ArrayList<>();
+        tabelaSimbolos = new ArrayList<>();
+        areaCode = new ArrayList<>();
         cont = 0;
+        escopo = 0;
+        endereco = 0;
         tam = lexemas.size();
         this.lexemas = lexemas;
         this.lexemas = lexemas.stream().filter(lex -> lex instanceof Lexema).collect(Collectors.toCollection(ArrayList::new));
-        System.out.println("---------Iniciando Analise Sintatica -----");
+        System.out.println("---------Iniciando Analise Semantica -----");
         nextLexema();
         program();
-        setConsole(erros.toString() + grammarCheck);
+        System.out.println("-----------Fim da Analise Semantica");
+        System.out.println("Tabela de Simbolos");
+        tabelaSimbolos.forEach((a) -> {
+            System.out.println(a.getLex().getLexema() + " -- " + a.getLex().getToken().toString() + "--" + a.getCategoria() + "--"
+                    + a.getTipo() + "-- " + String.valueOf(a.getEscopo()));
+        });
+        System.out.println("Erros");
+        errosSem.forEach((ErroSemantico err) -> {;
+            System.out.println(err.toString());
+        });
+        System.out.println("Area de codigo");
+        areaCode.forEach((c) -> {
+            System.out.println(c.getCode().toString());
+        });
+
     }
 
     private void setConsole(String message) {
         MainScreenController.instance.setConsole(message);
     }
 
-    public AnalisadorSintatico() {
+    public AnalisadorSemantico() {
 
     }
 
@@ -88,13 +117,17 @@ public class AnalisadorSintatico {
         erros.add(new ErroSint(lexAtual, esperado));
     }
 
+    private void addErroSem(ErroSem err) {
+        errosSem.add(new ErroSemantico(lexAtual, err));
+    }
+
     private boolean match(String classe) {
         return classe.matches(Classificacao.RESERVADA.getRegex());
     }
 
     private void descartar() {
         while (true) {
-            if(!hasNext()){
+            if (!hasNext()) {
                 return;
             }
             if (checkToken(Classificacao.DELIMITADOR_PONTO_VIRGULA)) {
@@ -108,59 +141,67 @@ public class AnalisadorSintatico {
             System.out.println("Descartando Token: " + lexAtual.getLexema() + " Classe: " + lexAtual.getToken().toString());
             nextLexema();
         }
-        
+
         System.out.println("Erro Program -- recuperação da analise sintatica: " + lexAtual.getLexema() + " Classe: " + lexAtual.getToken().toString());
     }
-    
-    
-    private boolean descartarAte(Classificacao... classes){
+
+    private boolean compareTipo(String... tipos) {
+        for (String str : tipos) {
+            if (auxTipo.equals(str)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean descartarAte(Classificacao... classes) {
         boolean isDescartar = false;
-        while(true){
-            for(Classificacao classe : classes){
+        while (true) {
+            for (Classificacao classe : classes) {
                 if (checkToken(classe)) {
                     return isDescartar;
-                }    
+                }
             }
             isDescartar = true;
             nextLexema();
-            System.out.println("Descartando Token: " + lexAtual.getLexema() + " Classe: " + lexAtual.getToken().toString());   
-            if(!hasNext()) return isDescartar;
+            System.out.println("Descartando Token: " + lexAtual.getLexema() + " Classe: " + lexAtual.getToken().toString());
+            if (!hasNext()) {
+                return isDescartar;
+            }
         }
+    }
+
+    private void addCode(Instrucao code, int end) {
+        areaCode.add(new Codigo(code, end));
+    }
+
+    private void addSimbolo(Categoria cat, String tipo) {
+        tabelaSimbolos.add(new Simbolos(lexAtual, cat, escopo, tipo, endereco++));
     }
 
     private void endProgram() {
         nextLexema();
-        if(!hasNext()){
+        if (!hasNext()) {
             grammarCheck = "\n Analise sintática completa";
-            if(!checkToken(Classificacao.DELIMITADOR_PONTO)) {
-               addErro(Classificacao.DELIMITADOR_PONTO);
+            if (!checkToken(Classificacao.DELIMITADOR_PONTO)) {
+                addErro(Classificacao.DELIMITADOR_PONTO);
             }
-        }    
-        
+        }
         System.out.println("Analise Sintatica Completa");
     }
 
     private boolean program() {
         if (checkToken(Classificacao.PALAVRA_RESERVADA_PROGRAM)) {
+            addCode(Instrucao.INPP, -1);
             nextLexema();
             if (checkToken(Classificacao.IDENTIFICADOR)) {
+                addSimbolo(Categoria.Programa, "-");
                 nextLexema();
-                if (checkToken(Classificacao.DELIMITADOR_PONTO_VIRGULA)) {
-                    System.out.println("Program Ok");
-                    nextLexema();
-                    bloco();
-                    endProgram();
-                } else {
-                    addErro(Classificacao.DELIMITADOR_PONTO_VIRGULA);
-                    bloco();
-                    endProgram();
-                }
+                System.out.println("Program Ok");
+                nextLexema();
+                bloco();
+                endProgram();
             }
-        } else {
-            addErro(Classificacao.PALAVRA_RESERVADA_PROGRAM);
-            descartar();
-            bloco();
-            endProgram();
         }
         return false;
     }
@@ -168,45 +209,45 @@ public class AnalisadorSintatico {
     private void bloco() {
         declaracao();
         System.out.println("-------Declaração Ok------------");
+        int aux_escopo = escopo;
         if (subRotinas()) {
-            System.out.println("sbusbusub= " + lexAtual.getLexema());
             if (checkToken(Classificacao.DELIMITADOR_PONTO_VIRGULA)) {
                 nextLexema();
             } else {
                 addErro(Classificacao.DELIMITADOR_PONTO_VIRGULA);
             }
         }
+        escopo = aux_escopo;
         System.out.println("-------Sub-Rotinas Ok------------");
         comandoComposto();
         System.out.println("-------Comando Composto Ok------------");
     }
 
+    private boolean pesquisarSimbolo() {
+        return tabelaSimbolos.stream().noneMatch((s) -> (escopo == s.getEscopo() && s.getLex().getLexema().equals(lexAtual.getLexema())));
+    }
+
     private void declaracao() {
-//        boolean passei_uma_vez_pelo_menos = false;
         while (tipos()) {
-//            passei_uma_vez_pelo_menos = true;
+            ultimoTipo = lexAtual.getToken().getRegex();
             nextLexema();
             listaIdentificadores();
             if (checkToken(Classificacao.DELIMITADOR_PONTO_VIRGULA)) {
                 nextLexema();
-            } else {
-                addErro(Classificacao.DELIMITADOR_PONTO_VIRGULA);
-                backLexema();
-                descartar();
             }
         }
         Lexema aux = lexAtual;
-        if(descartarAte(Classificacao.PALAVRA_RESERVADA_BEGIN, Classificacao.PALAVRA_RESERVADA_PROCEDURE, Classificacao.PALAVRA_RESERVADA_INT, 
-                Classificacao.PALAVRA_RESERVADA_INTEGER, Classificacao.PALAVRA_RESERVADA_VAR, 
+        if (descartarAte(Classificacao.PALAVRA_RESERVADA_BEGIN, Classificacao.PALAVRA_RESERVADA_PROCEDURE, Classificacao.PALAVRA_RESERVADA_INT,
+                Classificacao.PALAVRA_RESERVADA_INTEGER, Classificacao.PALAVRA_RESERVADA_VAR,
                 Classificacao.PALAVRA_RESERVADA_BOOLEAN, Classificacao.PALAVRA_RESERVADA_CHAR,
-                Classificacao.PALAVRA_RESERVADA_REAL)){
+                Classificacao.PALAVRA_RESERVADA_REAL)) {
             Lexema aux2 = lexAtual;
             lexAtual = aux;
             addErro(Classificacao.PALAVRA_RESERVADA_BEGIN);
             lexAtual = aux2;
             declaracao();
         }
-        
+
 //        if(!passei_uma_vez_pelo_menos) addErro(Classificacao.PALAVRA_RESERVADA_VAR);
     }
 
@@ -219,6 +260,12 @@ public class AnalisadorSintatico {
     private void listaIdentificadores() {
         boolean passei_uma_vez_pelo_menos = false;
         while (checkToken(Classificacao.IDENTIFICADOR)) {
+            if (pesquisarSimbolo()) {
+                addSimbolo(Categoria.Variavel, ultimoTipo);
+                addCode(Instrucao.AMEM, 1);
+            } else {
+                addErroSem(ErroSem.JADECLARADO);
+            }
             passei_uma_vez_pelo_menos = true;
             nextLexema();
             if (!checkToken(Classificacao.DELIMITADOR_VIRGULA)) {
@@ -226,28 +273,25 @@ public class AnalisadorSintatico {
             }
             nextLexema();
         }
-        if (!passei_uma_vez_pelo_menos) {
-            addErro(Classificacao.IDENTIFICADOR);
-        }
     }
 
     //SUB-rotinas
     private boolean subRotinas() {
         if (checkToken(Classificacao.PALAVRA_RESERVADA_PROCEDURE)) {
+            escopo++;
             nextLexema();
             if (checkToken(Classificacao.IDENTIFICADOR)) {
+                if (pesquisarSimbolo()) {
+                    addSimbolo(Categoria.Procedure, "-");
+                    //addCode(Instrucao.AMEM, 1);
+                } else {
+                    addErroSem(ErroSem.JADECLARADO);
+                }
                 nextLexema();
-            } else {
-                addErro(Classificacao.IDENTIFICADOR);
-                descartar();
-                backLexema();
-                backLexema();
             }
             return subRotinaParametros();
-        } else {
-            System.out.println("Não há procedures");
-            return false;
         }
+        return false;
     }
 
     private boolean subRotinaParametros() {
@@ -284,33 +328,30 @@ public class AnalisadorSintatico {
                 }
             }
         } else {
-            if (checkToken(Classificacao.DELIMITADOR_PONTO_VIRGULA)){
+            if (checkToken(Classificacao.DELIMITADOR_PONTO_VIRGULA)) {
                 return true;
-            }
-            else{
+            } else {
                 addErro(Classificacao.DELIMITADOR_PONTO_VIRGULA);
             }
         }
         return false;
     }
 
+    private void getTipo() {
+        int contador = cont;
+        descartarAte(Classificacao.INTEIRO, Classificacao.COM_VIRGULA);
+        ultimoTipo = lexAtual.getLexema();
+        cont = contador;
+    }
+
     private boolean parametros() {
         if (checkLexema("var")) {
+            getTipo();
             nextLexema();
             listaIdentificadores();
             if (checkToken(Classificacao.DELIMITADOR_DOIS_PONTO)) {
                 nextLexema();
-                if (!tipos()) {
-                    addErro(Classificacao.PALAVRA_RESERVADA_CONST);
-                    backLexema();
-                }
-            } else {
-                addErro(Classificacao.DELIMITADOR_PONTO_VIRGULA);
-                descartar();
             }
-        } else {
-            addErro(Classificacao.PALAVRA_RESERVADA_VAR);
-            return false;
         }
         return true;
 
@@ -353,11 +394,22 @@ public class AnalisadorSintatico {
         }
     }
 
+    private boolean writeread() {
+        if (checkToken(Classificacao.IDENTIFICADOR) && lexAtual.getLexema().equals("write") || lexAtual.getLexema().equals("read")) {
+            addSimbolo(Categoria.io, "-");
+            procedimento();
+            return true;
+        }
+        return false;
+    }
+
     private boolean comando() {
         System.out.println("Comando ----------- " + lexAtual.getLexema());
         boolean aux = false;
         if (checkToken(Classificacao.PALAVRA_RESERVADA_END)) {
             return false;
+        } else if (writeread()) {
+            aux = true;
         } else if (atribuicao()) {
             aux = true;
         } else if (condicional()) {
@@ -368,10 +420,10 @@ public class AnalisadorSintatico {
             aux = true;
         } else if (comandoComposto()) {
             aux = true;
-        }else{
+        } else {
             descartar();
 //            backLexema();;
-            System.out.println("Retrocesso do Lexema me levou a : "+lexAtual.getLexema());
+            System.out.println("Retrocesso do Lexema me levou a : " + lexAtual.getLexema());
             aux = true;
         }
 //        }else{
@@ -380,7 +432,7 @@ public class AnalisadorSintatico {
 //        }
         return aux;
     }
-    
+
     private boolean condicional() {
 //        System.out.println("Condição ---- " + lexAtual.getLexema());
         if (checkToken(Classificacao.PALAVRA_RESERVADA_IF)) {
@@ -448,10 +500,18 @@ public class AnalisadorSintatico {
     private boolean procedimento() {
 //        System.out.println("Procedimento ---- " + lexAtual.getLexema() + " --- " + lexAtual.getToken().toString());;
         if (checkToken(Classificacao.IDENTIFICADOR)) {
+            Simbolos s = getSimbolo();
+            if (s == null) {
+                addErroSem(ErroSem.NAOFOIDECLARADO);
+                descartar();
+                return false;
+            } else {
+                auxTipo = "qualquer";
+            }
             nextLexema();
             if (checkToken(Classificacao.DELIMITADOR_ABRE_PARENTESE)) {
                 nextLexema();
-                if (checkToken(Classificacao.DELIMITADOR_FECHA_PARENTESE)){
+                if (checkToken(Classificacao.DELIMITADOR_FECHA_PARENTESE)) {
                     nextLexema();
                     return true;
                 }
@@ -465,22 +525,50 @@ public class AnalisadorSintatico {
             } else {
                 addErro(Classificacao.DELIMITADOR_ABRE_PARENTESE);
                 descartar();
-                setCont(cont-2);
+                setCont(cont - 2);
                 return true;
             }
         }
         return false;
     }
 
+    private Simbolos getSimbolo() {
+        int esc = escopo;
+        do {
+            for (Simbolos s : tabelaSimbolos) {
+                if (s.getEscopo() == esc && s.getLex().getLexema().equals(lexAtual.getLexema())) {
+                    return s;
+                }
+            }
+            esc--;
+        } while (esc >= 0);
+        return null;
+    }
+
     private boolean atribuicao() {
         int aux = cont - 1;
+        Lexema auxLexema = lexAtual;
 //        System.out.println("Atribuicao ---- " + lexAtual.getLexema());
+        Simbolos s;
         if (checkToken(Classificacao.IDENTIFICADOR)) {
+
+            s = getSimbolo();
+            if (s == null) {
+                addErroSem(ErroSem.NAOFOIDECLARADO);
+                return false;
+            } else {
+                auxTipo = s.getTipo();
+                auxEscopo = s.getEscopo();
+            }
             nextLexema();
             if (checkToken(Classificacao.OPERADOR_ATRIBUICAO)) {
+
                 System.out.println("Atribuicao na variavel ");
                 nextLexema();
                 expressao();
+                if (s != null) {
+                    s.setUtilizada(true);
+                }
                 System.out.println("Fim da atribuicao == " + expr);
                 return true;
             } else {
@@ -530,6 +618,19 @@ public class AnalisadorSintatico {
             nextLexema();
             if (checkToken(Classificacao.OPERADOR_AND) || checkToken(Classificacao.OPERADOR_DIV)
                     || checkToken(Classificacao.OPERADOR_MULTIPLICACAO)) {
+                if (checkToken(Classificacao.OPERADOR_AND)) {
+                    if (!auxTipo.equals("boolean") || !auxTipo.equals("bool")) {
+                        addErroSem(ErroSem.TIPOSDIFF);
+                    }
+
+                } else if (checkToken(Classificacao.OPERADOR_DIV)) {
+                    if (!auxTipo.equals("real")) {
+                        addErroSem(ErroSem.PRECISAREAL);
+                    }
+                } else if (auxTipo.equals("boolean") || auxTipo.equals("bool")) {
+                    addErroSem(ErroSem.TIPOSDIFF);
+                }
+
                 nextLexema();
                 termo();
             }
@@ -550,7 +651,15 @@ public class AnalisadorSintatico {
     }
 
     private boolean preDeclaradas() {
-        return checkToken(Classificacao.PALAVRA_RESERVADA_TRUE) || checkToken(Classificacao.PALAVRA_RESERVADA_FALSE);
+        if (checkToken(Classificacao.PALAVRA_RESERVADA_TRUE) || checkToken(Classificacao.PALAVRA_RESERVADA_FALSE)) {
+            if (auxTipo.equals("boolean") || auxTipo.equals("bool")) {
+
+            } else {
+                addErroSem(ErroSem.TIPOSDIFF);
+            }
+            return true;
+        }
+        return false;
     }
 
     private boolean sinal() {
@@ -558,11 +667,35 @@ public class AnalisadorSintatico {
     }
 
     public boolean variavel() {
-        return checkToken(Classificacao.IDENTIFICADOR);
+        if (checkToken(Classificacao.IDENTIFICADOR)) {
+            Simbolos aux = getSimbolo();
+            if (aux == null || !aux.isUtilizada()) {
+                addErroSem(ErroSem.NAOFOIDECLARADO);
+            } else if (!aux.getTipo().equals(auxTipo) && !auxTipo.equals("qualquer")) {
+                if ((aux.getTipo().equals("int") || aux.getTipo().equals("integer")) && !auxTipo.equals("real")) {
+                    addErroSem(ErroSem.TIPOSDIFF);
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     private boolean numero() {
-        return checkToken(Classificacao.COM_VIRGULA) || checkToken(Classificacao.INTEIRO);
+        if (checkToken(Classificacao.COM_VIRGULA)) {
+            if (auxTipo.equals("real") || auxTipo.equals("qualquer")) {
+                addSimbolo(Categoria.Numero, "real");
+                return true;
+            }
+            addErroSem(ErroSem.TIPOSDIFF);
+        } else if (checkToken(Classificacao.INTEIRO)) {
+            if (!auxTipo.equals("boolean") || !auxTipo.equals("bool")) {
+                addSimbolo(Categoria.Numero, "int");
+                return true;
+            }
+            addErroSem(ErroSem.TIPOSDIFF);
+        }
+        return false;
     }
 
     private boolean exprParenteses() {
@@ -582,6 +715,9 @@ public class AnalisadorSintatico {
 
     private boolean notFator() {
         if (checkToken(Classificacao.OPERADOR_NOT)) {
+            if (!auxTipo.equals("boolean")) {
+                addErroSem(ErroSem.TIPOSDIFF);
+            }
             nextLexema();
             fator();
             return true;
@@ -597,11 +733,11 @@ public class AnalisadorSintatico {
 
     private boolean listaExpressoes() {
         expressao();
-        System.out.println(lexAtual.getLexema());
         while (checkToken(Classificacao.DELIMITADOR_VIRGULA)) {
             nextLexema();
             expressao();
         }
         return true;
     }
+
 }

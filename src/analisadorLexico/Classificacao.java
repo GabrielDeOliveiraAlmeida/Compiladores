@@ -18,7 +18,7 @@ public enum Classificacao {
     COM_VIRGULA("(0|([1-9][0-9]{0,10}))(\\.[0-9]{1,10})?$"),
     IDENTIFICADOR("[_|a-z|A-Z][a-z|A-Z|0-9|_]{0,19}"),
     PALAVRA_RESERVDA("if|then|else|begin|end|while|do|program|"
-            + "procedure|true|false|char|integer|int|boolean|const|and|or|not|mod|in|var|div"),
+            + "procedure|true|false|char|integer|int|real|boolean|const|and|or|not|mod|in|var|div"),
     COMENTARIO(Pattern.quote("//")),
     COMENTARIO_BLOCO("[{]"),
     OPERADORES("\\+|\\-|\\*|\\/|=|<>|>|<|<=|>=|(:=)"),
@@ -47,6 +47,7 @@ public enum Classificacao {
     PALAVRA_RESERVADA_FALSE("false"),
     PALAVRA_RESERVADA_CHAR("char"),
     PALAVRA_RESERVADA_INTEGER("integer"),
+    PALAVRA_RESERVADA_REAL("real"),
     PALAVRA_RESERVADA_INT("int"),
     PALAVRA_RESERVADA_BOOLEAN("boolean"),
     PALAVRA_RESERVADA_CONST("const"),
@@ -81,7 +82,7 @@ public enum Classificacao {
     DESCONHECIDO(Pattern.quote("")),
     EXPRESSAO(""),
     RESERVADA("if|begin|end|while|"
-            + "procedure|char|integer|int|boolean|const|var"),
+            + "procedure|char|integer|int|real|boolean|const|var"),
     EOF("");
     
 
@@ -116,6 +117,12 @@ public enum Classificacao {
     }
     
     public static Classificacao check(String str){
+        if(str.matches(Classificacao.INTEIRO.getRegex())) return Classificacao.INTEIRO;
+        else if(str.matches(Classificacao.COM_VIRGULA.getRegex())) return Classificacao.COM_VIRGULA;
+        else if(str.matches(Classificacao.IDENTIFICADOR.getRegex())) return Classificacao.IDENTIFICADOR;
+        else return Classificacao.DESCONHECIDO;
+    }
+    public static Classificacao checkTipo(String str){
         if(str.matches(Classificacao.INTEIRO.getRegex())) return Classificacao.INTEIRO;
         else if(str.matches(Classificacao.COM_VIRGULA.getRegex())) return Classificacao.COM_VIRGULA;
         else if(str.matches(Classificacao.IDENTIFICADOR.getRegex())) return Classificacao.IDENTIFICADOR;

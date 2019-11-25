@@ -43,6 +43,7 @@ import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_INT;
 import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_INTEGER;
 import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_PROCEDURE;
 import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_PROGRAM;
+import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_REAL;
 import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_THEN;
 import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_TRUE;
 import static analisadorLexico.Classificacao.PALAVRA_RESERVADA_VAR;
@@ -70,6 +71,7 @@ public class ClassificacaoReservadas {
         tabela.put("false", PALAVRA_RESERVADA_FALSE);
         tabela.put("char", PALAVRA_RESERVADA_CHAR);
         tabela.put("integer", PALAVRA_RESERVADA_INTEGER);
+        tabela.put("real", PALAVRA_RESERVADA_REAL);
         tabela.put("int", PALAVRA_RESERVADA_INT);
         tabela.put("boolean", PALAVRA_RESERVADA_BOOLEAN);
         tabela.put("var", PALAVRA_RESERVADA_VAR);

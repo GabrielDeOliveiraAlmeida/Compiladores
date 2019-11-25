@@ -105,6 +105,7 @@ public class MainScreenController implements Initializable {
         //lex = calculadoralexico.CalculadoraLexico.execute(exp);
         lex = ana.executeLex(exp);
         ana.executeSint(lex);
+        ana.executeSem(lex);
         obsListLex = FXCollections.observableArrayList(lex);
         tabela.setItems(obsListLex);
         
