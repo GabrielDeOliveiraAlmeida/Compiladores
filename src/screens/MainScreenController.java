@@ -178,7 +178,7 @@ public class MainScreenController implements Initializable {
 "begin\n" +
 "	a:=10;\n" +
 "	if (a1<a) then\n" +
-"		d:=true;\n" +
+"		d:=true\n" +
 "end;\n" +
 "\n" +
 "begin\n" +
