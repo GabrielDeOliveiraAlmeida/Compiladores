@@ -40,7 +40,7 @@ public class AnalisadorSemantico {
     private Deque<Lexema> auxLex;
     private Deque<Lexema> posFixa;
     private boolean parenEsq;
-
+    private String areaCodigo;
 
     public ArrayList execute(ArrayList<Object> lexemas) {
         grammarCheck = "\n Analise incompleta";
@@ -75,13 +75,21 @@ public class AnalisadorSemantico {
             System.out.println(err.toString());
         });
         System.out.println("Area de codigo");
+        areaCodigo = "";
         areaCode.forEach((c) -> {
-            System.out.println(c.getCode().toString() + " --- " + String.valueOf(c.getEnd()));
+            if(!String.valueOf(c.getEnd()).equals("null")) 
+                areaCodigo += c.getCode().toString() + " " + c.getEnd() + "\n";
+            else 
+                areaCodigo += c.getCode().toString() + "\n";
         });
-        
+        System.out.println(areaCodigo);
         return tabelaSimbolos;
     }
 
+    public String areaCodigo(){
+        return areaCodigo;
+    }
+    
     private void setConsole(String message) {
         MainScreenController.instance.setConsole(message);
     }

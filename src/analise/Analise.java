@@ -43,4 +43,9 @@ public class Analise {
     public ArrayList<Codigo> tratarEntrada(String text){
         return vm.tratarEntrada(text);
     }
+    
+    public String getCodigo(){
+        return sem.areaCodigo();
+    }
 }
+
