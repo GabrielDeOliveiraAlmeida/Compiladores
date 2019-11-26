@@ -114,11 +114,12 @@ public class Interpretador {
                     pilha.push(Double.parseDouble(ler));
                     break;
                 case IMPE:
+                    aux1 =  pilha.pop();
                     Alert alert = new Alert(AlertType.INFORMATION);
-                    alert.setContentText(String.valueOf(pilha.pop()));
+                    alert.setContentText(String.valueOf(aux1));
                     alert.showAndWait();
                     
-                    imprime("Escrita: " + String.valueOf(pilha.pop()));
+                    imprime("Escrita: " + String.valueOf(aux1));
                     break;
                 case CRCT:
                     pilha.push(Double.parseDouble(atual.getEnd()));
