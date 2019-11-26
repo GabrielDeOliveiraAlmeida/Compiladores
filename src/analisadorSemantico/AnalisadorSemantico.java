@@ -72,11 +72,14 @@ public class AnalisadorSemantico {
             }
         });
 
+       
         System.out.println("Erros");
-        errosSem.forEach((ErroSemantico err) -> {;
+        errosSem.forEach((ErroSemantico err) -> {
             System.out.println(err.toString());
+            setConsole(err.toString());
         });
         System.out.println("Area de codigo");
+        setConsole("Area de codigo");
         areaCodigo = "";
         areaCode.forEach((c) -> {
             if(!String.valueOf(c.getEnd()).equals("null")) 
@@ -85,6 +88,7 @@ public class AnalisadorSemantico {
                 areaCodigo += c.getCode().toString() + "\n";
         });
         System.out.println(areaCodigo);
+        setConsole(areaCodigo);
         return tabelaSimbolos;
     }
 

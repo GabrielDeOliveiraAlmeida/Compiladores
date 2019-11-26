@@ -22,6 +22,8 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 
 import javafx.collections.ObservableList;
@@ -34,6 +36,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
@@ -48,6 +51,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
+import javafx.util.Callback;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 
@@ -63,19 +67,18 @@ public class MainScreenController implements Initializable {
     public static MainScreenController instance;
     @FXML
     private TextArea inputText;
-    
+
     @FXML
     private TextArea console;
-    
+
     @FXML
     private TextArea consoleSem;
 
     @FXML
     private Button btn;
-    
+
     @FXML
     private TabPane tabCodigo;
-
 
     @FXML
     private TableView<Object> tabelaLexica;
@@ -124,9 +127,12 @@ public class MainScreenController implements Initializable {
 
     @FXML
     private BorderPane bordePaneCode;
-    
+
     @FXML
     private BorderPane borderPaneInter;
+
+    @FXML
+    private TabPane tabConsole;
 
     private ArrayList<Object> lex;
     private ArrayList<Object> sem;
@@ -141,36 +147,34 @@ public class MainScreenController implements Initializable {
 
     public void execute(String exp) {
 
-        
         lex = ana.executeLex(exp);
         ana.executeSint(lex);
         obsListLex = FXCollections.observableArrayList(lex);
         tabelaLexica.setItems(obsListLex);
-        
+
         sem = ana.executeSem(lex);
         obsListSem = FXCollections.observableArrayList(sem);
         tabelaSemantica.setItems(obsListSem);
         
-     
-//    ana.executeInter(ana.tratarEntrada(text));
-     
-    
     }
 
     @FXML
     void onClickExecute(ActionEvent event) {
 
         int index = tabCodigo.getSelectionModel().getSelectedIndex();
-        switch(index){
+        
+        switch (index) {
             case 0:
+                tabConsole.getSelectionModel().select(0);
                 execute(codeArea.getText());
                 break;
             case 1:
-                //execute interpretador (codeInter.getText())
+                tabConsole.getSelectionModel().select(3);
+                ana.executeInter(ana.tratarEntrada(interArea.getText()));
                 break;
         }
-        
-
+        console.setText("");
+        consoleSem.setText("");
     }
 
     @FXML
@@ -198,16 +202,27 @@ public class MainScreenController implements Initializable {
         }
 
     }
-    
-    public void setConsole(String message){
-     
+
+    public void setConsole(String message) {
+
         Platform.runLater(new Runnable() {
-            @Override 
+            @Override
             public void run() {
-                console.setText(message);
+                console.appendText(message + "\n");
             }
         });
-        
+
+    }
+
+    public void setConsoleSem(String message) {
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                consoleSem.appendText(message + "\n");
+            }
+        });
+
     }
 
     /**
@@ -217,69 +232,69 @@ public class MainScreenController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
         instance = this;
-        
+
         console.setEditable(false);
         consoleSem.setEditable(false);
-        
+
         codeArea = new CodeArea();
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
 
-        codeArea.replaceText("program correto;\n" +
-"int a;\n" +
-"boolean d, e, f;\n" +
-"real b, c;\n" +
-"\n" +
-"\n" +
-"procedure proc(var a1 : int);\n" +
-"int a;\n" +
-"begin\n" +
-"	a:=10;\n" +
-"	if (a1<a) then\n" +
-"		d:=true\n" +
-"end;\n" +
-"\n" +
-"begin\n" +
-"	a:=2;\n" +
-"	b:=10.5;\n" +
-"	c:=b+a;\n" +
-"	d:=true;\n" +
-"	e:=false;\n" +
-"	f:=true;\n" +
-"	read(a);\n" +
-"	write(b);\n" +
-"	if (d) then\n" +
-"	begin\n" +
-"		a:=20;\n" +
-"		b:=10*c;\n" +
-"		c:=a div b\n" +
-"	end;\n" +
-"	while (a>1) do\n" +
-"	begin\n" +
-"		if (a>10) then\n" +
-"			b:=2.0;\n" +
-"		a:=a-1\n" +
-"	end\n" +
-"end.");
+        codeArea.replaceText("program correto;\n"
+                + "int a;\n"
+                + "boolean d, e, f;\n"
+                + "real b, c;\n"
+                + "\n"
+                + "\n"
+                + "procedure proc(var a1 : int);\n"
+                + "int a;\n"
+                + "begin\n"
+                + "	a:=10;\n"
+                + "	if (a1<a) then\n"
+                + "		d:=true\n"
+                + "end;\n"
+                + "\n"
+                + "begin\n"
+                + "	a:=2;\n"
+                + "	b:=10.5;\n"
+                + "	c:=b+a;\n"
+                + "	d:=true;\n"
+                + "	e:=false;\n"
+                + "	f:=true;\n"
+                + "	read(a);\n"
+                + "	write(b);\n"
+                + "	if (d) then\n"
+                + "	begin\n"
+                + "		a:=20;\n"
+                + "		b:=10*c;\n"
+                + "		c:=a div b\n"
+                + "	end;\n"
+                + "	while (a>1) do\n"
+                + "	begin\n"
+                + "		if (a>10) then\n"
+                + "			b:=2.0;\n"
+                + "		a:=a-1\n"
+                + "	end\n"
+                + "end.");
         bordePaneCode.setCenter(new VirtualizedScrollPane<>(codeArea));
-        
+
         interArea = new CodeArea();
         interArea.setParagraphGraphicFactory(LineNumberFactory.get(interArea));
-        interArea.replaceText("INPP\n" +
-"AMEM 1\n" +
-"AMEM 1\n" +
-"LEIT\n" +
-"ARMZ 0\n" +
-"LEIT\n" +
-"ARMZ 1\n" +
-"CRVL 0\n" +
-"CRVL 1\n" +
-"CMMA\n" +
-"DSVF 14\n" +
-"CRVL 0\n" +
-"IMPR\n" +
-"IMPE\n" +
-"NADA\n" +
-"PARA");
+        interArea.replaceText("INPP\n"
+                + "AMEM 1\n"
+                + "AMEM 1\n"
+                + "LEIT\n"
+                + "ARMZ 0\n"
+                + "LEIT\n"
+                + "ARMZ 1\n"
+                + "CRVL 0\n"
+                + "CRVL 1\n"
+                + "CMMA\n"
+                + "DSVF 14\n"
+                + "CRVL 0\n"
+                + "IMPR\n"
+                + "IMPE\n"
+                + "NADA\n"
+                + "PARA");
         borderPaneInter.setCenter(new VirtualizedScrollPane<>(interArea));
 
         tabLexLexema.setCellValueFactory(new PropertyValueFactory<>("lexema"));
@@ -287,27 +302,38 @@ public class MainScreenController implements Initializable {
         tabLexLinha.setCellValueFactory(new PropertyValueFactory<>("linha"));
         tabLexColunaInicial.setCellValueFactory(new PropertyValueFactory<>("coluna_inicial"));
         tabLexColunaFinal.setCellValueFactory(new PropertyValueFactory<>("coluna_final"));
+
+      
+
+        tabSemCadeia.setCellValueFactory(new Callback<CellDataFeatures<Simbolos, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(CellDataFeatures<Simbolos, String> param) {
+                return new SimpleObjectProperty<>(param.getValue().getLex().getLexema());
+            }
+        });
         
-        tabSemCadeia.setCellValueFactory(new PropertyValueFactory<>("lex"));
-        tabSemToken.setCellValueFactory(new PropertyValueFactory<>("token"));
+        tabSemToken.setCellValueFactory(new Callback<CellDataFeatures<Simbolos, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(CellDataFeatures<Simbolos, String> param) {
+                return new SimpleObjectProperty<>(param.getValue().getLex().getToken().name());
+            }
+        });
         tabSemCategoria.setCellValueFactory(new PropertyValueFactory<>("categoria"));
         tabSemTipo.setCellValueFactory(new PropertyValueFactory<>("tipo"));
         tabSemEndereco.setCellValueFactory(new PropertyValueFactory<>("endereco"));
         tabSemEscopo.setCellValueFactory(new PropertyValueFactory<>("escopo"));
         tabSemUtilizada.setCellValueFactory(new PropertyValueFactory<>("utilizada"));
-        
-        
+
         tabelaLexica.setRowFactory(row -> new TableRow<Object>() {
             @Override
             public void updateItem(Object item, boolean empty) {
                 super.updateItem(item, empty);
-                
-                
+
                 if (item instanceof Erro) {
                     setStyle(" -fx-background-color: red;"
                             + " -fx-text-fill: white;"
                             + "-fx-font-weight: bold; ");
-                }else{
+                } else {
                     setStyle("");
                 }
             }

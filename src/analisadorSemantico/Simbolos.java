@@ -13,6 +13,8 @@ import analisadorLexico.Lexema;
  */
 public class Simbolos<T> {
     private Lexema lex;
+    private String cadeia;
+    private String token;
     private Categoria categoria;
     private int escopo;
     private boolean utilizada;
@@ -25,6 +27,8 @@ public class Simbolos<T> {
 
     public Simbolos(Lexema lex, Categoria categoria, int escopo, String tipo, int endereco, boolean utilizada) {
         this.lex = lex;
+        this.cadeia = lex.getLexema();
+        this.token = lex.getToken().toString();
         this.categoria = categoria;
         this.escopo = escopo;
         this.utilizada = utilizada;

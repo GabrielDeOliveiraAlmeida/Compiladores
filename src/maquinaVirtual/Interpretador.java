@@ -9,8 +9,13 @@ import analisadorSemantico.Codigo;
 import analisadorSemantico.Instrucao;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.Stack;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.TextInputDialog;
+import screens.MainScreenController;
 
 /**
  *
@@ -23,6 +28,7 @@ public class Interpretador {
     private ArrayList<Codigo> codigo;
     private int cont;
     private Codigo atual;
+    public static MainScreenController instancia;
 
     public Interpretador() {
 
@@ -31,13 +37,13 @@ public class Interpretador {
     public ArrayList<Codigo> tratarEntrada(String text) {
         String[] array = text.replace(" ", "\n").split("\n");
         ArrayList<Codigo> areaCodigo = new ArrayList<>();
-        
-        for (int i = 0; i < array.length-1; i++) {
+
+        for (int i = 0; i < array.length - 1; i++) {
             Instrucao inst = Instrucao.get(array[i]);
             Instrucao inst2 = Instrucao.get(array[i + 1]);
-            if (inst!= null && inst2 == null) {
+            if (inst != null && inst2 == null) {
                 areaCodigo.add(new Codigo((inst), array[i + 1]));
-            } else if(inst!=null) {
+            } else if (inst != null) {
                 areaCodigo.add(new Codigo((inst), null));
             }
         }
@@ -45,12 +51,11 @@ public class Interpretador {
         if (inst != null) {
             areaCodigo.add(new Codigo((inst), null));
         }
-        
-        
+
         areaCodigo.forEach((c) -> {
             System.out.println(c.getCode().toString() + " --- " + String.valueOf(c.getEnd()));
         });
-        
+
         return areaCodigo;
     }
 
@@ -85,9 +90,9 @@ public class Interpretador {
             return;
         }
         instrucoes();
-        
-        for(int i=0; i<variaveis.size(); i++){
-            System.out.println("Memória["+i+"]: " + variaveis.get(i).toString());
+
+        for (int i = 0; i < variaveis.size(); i++) {
+            System.out.println("Memória[" + i + "]: " + variaveis.get(i).toString());
         }
     }
 
@@ -95,17 +100,25 @@ public class Interpretador {
         Double aux1, aux2;
         while (cont < codigo.size()) {
             nextCode();
-            System.out.println("Linha: " + cont + " Instrucao: "+ atual.getCode().toString() );
-            
+            System.out.println("Linha: " + cont + " Instrucao: " + atual.getCode().toString());
+            imprime("Linha: " + cont + " Instrucao: " + atual.getCode().toString());
             switch (atual.getCode()) {
                 case LEIT:
-                    System.out.print("Leitura: ");
-                    String ler = new Scanner(System.in).nextLine();
+                    TextInputDialog dialog = new TextInputDialog();
+                    dialog.setContentText("Leitura: ");
+                    Optional<String> result = dialog.showAndWait();
+                    String ler = "";
+                    if (result.isPresent()) {
+                        ler = result.get();
+                    }
                     pilha.push(Double.parseDouble(ler));
                     break;
                 case IMPE:
-                    System.out.print("Escrita: ");
-                    System.out.println(String.valueOf(pilha.pop()));
+                    Alert alert = new Alert(AlertType.INFORMATION);
+                    alert.setContentText(String.valueOf(pilha.pop()));
+                    alert.showAndWait();
+                    
+                    imprime("Escrita: " + String.valueOf(pilha.pop()));
                     break;
                 case CRCT:
                     pilha.push(Double.parseDouble(atual.getEnd()));
@@ -249,4 +262,7 @@ public class Interpretador {
         atual = codigo.get(cont);
     }
 
+    private void imprime(String msg){
+        MainScreenController.instance.setConsoleSem(msg);
+    }
 }
