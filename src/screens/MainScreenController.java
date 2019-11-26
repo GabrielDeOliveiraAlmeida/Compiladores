@@ -151,18 +151,21 @@ public class MainScreenController implements Initializable {
         ana.executeSint(lex);
         obsListLex = FXCollections.observableArrayList(lex);
         tabelaLexica.setItems(obsListLex);
-
-        sem = ana.executeSem(lex);
-        obsListSem = FXCollections.observableArrayList(sem);
-        tabelaSemantica.setItems(obsListSem);
-        
+        //if (ana.erros()) {
+            sem = ana.executeSem(lex);
+            setConsole("\nAnalise Semântica");
+            obsListSem = FXCollections.observableArrayList(sem);
+            tabelaSemantica.setItems(obsListSem);
+//        }else{
+//            setConsole("\nAnalise Semântica não realizada");
+//        }
     }
 
     @FXML
     void onClickExecute(ActionEvent event) {
 
         int index = tabCodigo.getSelectionModel().getSelectedIndex();
-        
+
         switch (index) {
             case 0:
                 tabConsole.getSelectionModel().select(0);
@@ -303,15 +306,13 @@ public class MainScreenController implements Initializable {
         tabLexColunaInicial.setCellValueFactory(new PropertyValueFactory<>("coluna_inicial"));
         tabLexColunaFinal.setCellValueFactory(new PropertyValueFactory<>("coluna_final"));
 
-      
-
         tabSemCadeia.setCellValueFactory(new Callback<CellDataFeatures<Simbolos, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(CellDataFeatures<Simbolos, String> param) {
                 return new SimpleObjectProperty<>(param.getValue().getLex().getLexema());
             }
         });
-        
+
         tabSemToken.setCellValueFactory(new Callback<CellDataFeatures<Simbolos, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(CellDataFeatures<Simbolos, String> param) {

@@ -32,6 +32,9 @@ public class Analise {
         sint.execute(lex);
     }
     
+    public boolean erros(){
+        return sint.getErros();
+    }
     public ArrayList executeSem(ArrayList<Object> lex){
         return sem.execute(lex);
     }

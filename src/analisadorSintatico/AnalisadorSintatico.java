@@ -38,6 +38,10 @@ public class AnalisadorSintatico {
         program();
         setConsole(erros.toString() + grammarCheck);
     }
+    
+    public boolean getErros(){
+        return erros.isEmpty();
+    }
 
     private void setConsole(String message) {
         MainScreenController.instance.setConsole(message);
