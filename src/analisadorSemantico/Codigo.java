@@ -11,9 +11,9 @@ package analisadorSemantico;
  */
 public class Codigo {
     private final Instrucao code;
-    private int end;
+    private String end;
 
-    public Codigo(Instrucao code, int end) {
+    public Codigo(Instrucao code, String end) {
         this.code = code;
         this.end = end;
     }
@@ -26,7 +26,7 @@ public class Codigo {
         return code;
     }
 
-    public int getEnd() {
+    public String getEnd() {
         return end;
     }
     

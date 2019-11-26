@@ -13,6 +13,7 @@ public enum ErroSem {
     NAOUTILIZADO("Nao foi utilizado"),
     JADECLARADO("Já foi declarado"),
     NAOFOIDECLARADO("Não foi declarado"),
+    NAOFOIINICIALIZADA("Não foi inicializada"),
     PRECISAREAL("Precisa ser real"),
     TIPOSDIFF("Tipos são diferentes");
     

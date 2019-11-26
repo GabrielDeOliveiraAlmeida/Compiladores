@@ -15,7 +15,8 @@ public enum Categoria {
     Procedure,
     Parametro,
     Numero,
-    io,
+    READ,
+    WRITE,
     Indefinido;
     
 }

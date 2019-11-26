@@ -69,9 +69,8 @@ public class Simbolos<T> {
         this.utilizada = utilizada;
     }
 
-    public void setEndereco(int endereco) {
-        this.endereco = endereco;
+    public String getEndereco(){
+        return String.valueOf(endereco);
     }
-    
     
 }
