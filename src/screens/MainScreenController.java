@@ -66,6 +66,9 @@ public class MainScreenController implements Initializable {
     
     @FXML
     private TextArea console;
+    
+    @FXML
+    private TextArea consoleSem;
 
     @FXML
     private Button btn;
@@ -216,6 +219,7 @@ public class MainScreenController implements Initializable {
         instance = this;
         
         console.setEditable(false);
+        consoleSem.setEditable(false);
         
         codeArea = new CodeArea();
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
@@ -290,7 +294,7 @@ public class MainScreenController implements Initializable {
         tabSemTipo.setCellValueFactory(new PropertyValueFactory<>("tipo"));
         tabSemEndereco.setCellValueFactory(new PropertyValueFactory<>("endereco"));
         tabSemEscopo.setCellValueFactory(new PropertyValueFactory<>("escopo"));
-        tabSemUtilizada.setCellValueFactory(new PropertyValueFactory<>("endereco"));
+        tabSemUtilizada.setCellValueFactory(new PropertyValueFactory<>("utilizada"));
         
         
         tabelaLexica.setRowFactory(row -> new TableRow<Object>() {

@@ -42,6 +42,8 @@ public class AnalisadorSemantico {
     private boolean parenEsq;
     private String areaCodigo;
 
+
+   
     public ArrayList execute(ArrayList<Object> lexemas) {
         grammarCheck = "\n Analise incompleta";
         erros = new ArrayList<>();
