@@ -8,6 +8,7 @@ package screens;
 import analisadorLexico.AnalisadorLexico;
 import analisadorLexico.Erro;
 import analisadorLexico.Lexema;
+import analisadorSemantico.Simbolos;
 import analise.Analise;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,6 +32,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
@@ -67,64 +69,87 @@ public class MainScreenController implements Initializable {
 
     @FXML
     private Button btn;
+    
+    @FXML
+    private TabPane tabCodigo;
+
 
     @FXML
-    private TableView<Object> tabela;
+    private TableView<Object> tabelaLexica;
 
     @FXML
-    private TableColumn<Lexema, String> tcLexema;
+    private TableColumn<Lexema, String> tabLexLexema;
 
     @FXML
-    private TableColumn<Lexema, String> tcToken;
+    private TableColumn<Lexema, String> tabLexToken;
 
     @FXML
-    private TableColumn<Lexema, String> tcLinha;
+    private TableColumn<Lexema, String> tabLexLinha;
 
     @FXML
-    private TableColumn<Lexema, String> tcColunaInicial;
+    private TableColumn<Lexema, String> tabLexColunaInicial;
 
     @FXML
-    private TableColumn<Lexema, String> tcColunaFinal;
+    private TableColumn<Lexema, String> tabLexColunaFinal;
+
+    @FXML
+    private TableView<Object> tabelaSemantica;
+
+    @FXML
+    private TableColumn<Simbolos, String> tabSemCadeia;
+
+    @FXML
+    private TableColumn<Simbolos, String> tabSemToken;
+
+    @FXML
+    private TableColumn<Simbolos, String> tabSemCategoria;
+
+    @FXML
+    private TableColumn<Simbolos, String> tabSemTipo;
+
+    @FXML
+    private TableColumn<Simbolos, String> tabSemEndereco;
+
+    @FXML
+    private TableColumn<Simbolos, String> tabSemEscopo;
+
+    @FXML
+    private TableColumn<Simbolos, String> tabSemUtilizada;
 
     @FXML
     private TextFlow flowCount;
 
     @FXML
-    private BorderPane bordePane;
+    private BorderPane bordePaneCode;
+    
+    @FXML
+    private BorderPane borderPaneInter;
 
     private ArrayList<Object> lex;
+    private ArrayList<Object> sem;
     private Analise ana;
     private ObservableList<Object> obsListLex;
+    private ObservableList<Object> obsListSem;
     private File file;
     private ObservableList obsCount;
     private int lineCount;
     private CodeArea codeArea;
+    private CodeArea interArea;
 
     public void execute(String exp) {
 
         
-//        lex = ana.executeLex(exp);
-//        ana.executeSint(lex);
-//        obsListLex = FXCollections.observableArrayList(lex);
-//        ana.executeSem(lex);
-//        tabela.setItems(obsListLex);
-     String text=   "INPP\n" +
-"AMEM 1\n" +
-"AMEM 1\n" +
-"LEIT\n" +
-"ARMZ 0\n" +
-"LEIT\n" +
-"ARMZ 1\n" +
-"CRVL 0\n" +
-"CRVL 1\n" +
-"CMMA\n" +
-"DSVF 14\n" +
-"CRVL 0\n" +
-"IMPR\n" +
-"IMPE\n" +
-"NADA\n" +
-"PARA";
-    ana.executeInter(ana.tratarEntrada(text));
+        lex = ana.executeLex(exp);
+        ana.executeSint(lex);
+        obsListLex = FXCollections.observableArrayList(lex);
+        tabelaLexica.setItems(obsListLex);
+        
+        sem = ana.executeSem(lex);
+        obsListSem = FXCollections.observableArrayList(sem);
+        tabelaSemantica.setItems(obsListSem);
+        
+     
+//    ana.executeInter(ana.tratarEntrada(text));
      
     
     }
@@ -132,7 +157,16 @@ public class MainScreenController implements Initializable {
     @FXML
     void onClickExecute(ActionEvent event) {
 
-        execute(codeArea.getText());
+        int index = tabCodigo.getSelectionModel().getSelectedIndex();
+        switch(index){
+            case 0:
+                execute(codeArea.getText());
+                break;
+            case 1:
+                //execute interpretador (codeInter.getText())
+                break;
+        }
+        
 
     }
 
@@ -182,6 +216,7 @@ public class MainScreenController implements Initializable {
         instance = this;
         
         console.setEditable(false);
+        
         codeArea = new CodeArea();
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
 
@@ -221,17 +256,44 @@ public class MainScreenController implements Initializable {
 "		a:=a-1\n" +
 "	end\n" +
 "end.");
-        bordePane.setCenter(new VirtualizedScrollPane<>(codeArea));
+        bordePaneCode.setCenter(new VirtualizedScrollPane<>(codeArea));
+        
+        interArea = new CodeArea();
+        interArea.setParagraphGraphicFactory(LineNumberFactory.get(interArea));
+        interArea.replaceText("INPP\n" +
+"AMEM 1\n" +
+"AMEM 1\n" +
+"LEIT\n" +
+"ARMZ 0\n" +
+"LEIT\n" +
+"ARMZ 1\n" +
+"CRVL 0\n" +
+"CRVL 1\n" +
+"CMMA\n" +
+"DSVF 14\n" +
+"CRVL 0\n" +
+"IMPR\n" +
+"IMPE\n" +
+"NADA\n" +
+"PARA");
+        borderPaneInter.setCenter(new VirtualizedScrollPane<>(interArea));
 
-        tcLexema.setCellValueFactory(new PropertyValueFactory<>("lexema"));
-        tcToken.setCellValueFactory(new PropertyValueFactory<>("token"));
-        tcLinha.setCellValueFactory(new PropertyValueFactory<>("linha"));
-        tcColunaInicial.setCellValueFactory(new PropertyValueFactory<>("coluna_inicial"));
-        tcColunaFinal.setCellValueFactory(new PropertyValueFactory<>("coluna_final"));
+        tabLexLexema.setCellValueFactory(new PropertyValueFactory<>("lexema"));
+        tabLexToken.setCellValueFactory(new PropertyValueFactory<>("token"));
+        tabLexLinha.setCellValueFactory(new PropertyValueFactory<>("linha"));
+        tabLexColunaInicial.setCellValueFactory(new PropertyValueFactory<>("coluna_inicial"));
+        tabLexColunaFinal.setCellValueFactory(new PropertyValueFactory<>("coluna_final"));
+        
+        tabSemCadeia.setCellValueFactory(new PropertyValueFactory<>("lex"));
+        tabSemToken.setCellValueFactory(new PropertyValueFactory<>("token"));
+        tabSemCategoria.setCellValueFactory(new PropertyValueFactory<>("categoria"));
+        tabSemTipo.setCellValueFactory(new PropertyValueFactory<>("tipo"));
+        tabSemEndereco.setCellValueFactory(new PropertyValueFactory<>("endereco"));
+        tabSemEscopo.setCellValueFactory(new PropertyValueFactory<>("escopo"));
+        tabSemUtilizada.setCellValueFactory(new PropertyValueFactory<>("endereco"));
         
         
-        
-        tabela.setRowFactory(row -> new TableRow<Object>() {
+        tabelaLexica.setRowFactory(row -> new TableRow<Object>() {
             @Override
             public void updateItem(Object item, boolean empty) {
                 super.updateItem(item, empty);

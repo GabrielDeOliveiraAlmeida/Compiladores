@@ -41,7 +41,8 @@ public class AnalisadorSemantico {
     private Deque<Lexema> posFixa;
     private boolean parenEsq;
 
-    public void execute(ArrayList<Object> lexemas) {
+
+    public ArrayList execute(ArrayList<Object> lexemas) {
         grammarCheck = "\n Analise incompleta";
         erros = new ArrayList<>();
         errosSem = new ArrayList<>();
@@ -77,7 +78,8 @@ public class AnalisadorSemantico {
         areaCode.forEach((c) -> {
             System.out.println(c.getCode().toString() + " --- " + String.valueOf(c.getEnd()));
         });
-
+        
+        return tabelaSimbolos;
     }
 
     private void setConsole(String message) {
@@ -877,5 +879,5 @@ public class AnalisadorSemantico {
         }
         return true;
     }
-
+    
 }

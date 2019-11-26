@@ -32,8 +32,8 @@ public class Analise {
         sint.execute(lex);
     }
     
-    public void executeSem(ArrayList<Object> lex){
-        sem.execute(lex);
+    public ArrayList executeSem(ArrayList<Object> lex){
+        return sem.execute(lex);
     }
     
     public void executeInter(ArrayList<Codigo> cod){
