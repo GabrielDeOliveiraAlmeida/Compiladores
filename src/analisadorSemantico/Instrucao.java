@@ -41,4 +41,11 @@ public enum Instrucao {
     IMPE,
     NADA;
     
+    
+    public static Instrucao get(String text){
+        for(Instrucao inst : Instrucao.values()){
+            if(inst.toString().equals(text)) return inst;
+        }
+        return null;
+    }
 }

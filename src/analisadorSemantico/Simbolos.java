@@ -5,7 +5,6 @@
  */
 package analisadorSemantico;
 
-import analisadorLexico.Classificacao;
 import analisadorLexico.Lexema;
 
 /**

@@ -63,7 +63,7 @@ public class AnalisadorSemantico {
         System.out.println("Tabela de Simbolos");
         tabelaSimbolos.forEach((a) -> {
             System.out.println(a.getLex().getLexema() + " -- " + a.getLex().getToken().toString() + "--" + a.getCategoria() + "--"
-                    + a.getTipo() + "-- " + String.valueOf(a.getEscopo()) + "--- utilizada: " + a.isUtilizada());
+                    + a.getTipo() + "-- " + String.valueOf(a.getEscopo()) + "endereco: "+ a.getEndereco() +"--- utilizada: " + a.isUtilizada());
             if (!a.isUtilizada()) {
                 addErroSemLex(a.getLex(), ErroSem.NAOUTILIZADO);
             }
