@@ -102,13 +102,31 @@ public class MainScreenController implements Initializable {
 
     public void execute(String exp) {
 
-        //lex = calculadoralexico.CalculadoraLexico.execute(exp);
-        lex = ana.executeLex(exp);
-        ana.executeSint(lex);
-        ana.executeSem(lex);
-        obsListLex = FXCollections.observableArrayList(lex);
-        tabela.setItems(obsListLex);
         
+//        lex = ana.executeLex(exp);
+//        ana.executeSint(lex);
+//        obsListLex = FXCollections.observableArrayList(lex);
+//        ana.executeSem(lex);
+//        tabela.setItems(obsListLex);
+     String text=   "INPP\n" +
+"AMEM 1\n" +
+"AMEM 1\n" +
+"LEIT\n" +
+"ARMZ 0\n" +
+"LEIT\n" +
+"ARMZ 1\n" +
+"CRVL 0\n" +
+"CRVL 1\n" +
+"CMMA\n" +
+"DSVF 14\n" +
+"CRVL 0\n" +
+"IMPR\n" +
+"IMPE\n" +
+"NADA\n" +
+"PARA";
+    ana.executeInter(ana.tratarEntrada(text));
+     
+    
     }
 
     @FXML

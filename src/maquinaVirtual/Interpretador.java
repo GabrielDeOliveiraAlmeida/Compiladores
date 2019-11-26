@@ -28,25 +28,32 @@ public class Interpretador {
 
     }
 
-    
-    public ArrayList<Codigo> tratarEntrada(String text){
-        String[] array = text.split(" ");
-        ArrayList<Codigo> areaCodigo =  new ArrayList<>();
-        for (int i=0; i<array.length - 1; i++) {
+    public ArrayList<Codigo> tratarEntrada(String text) {
+        String[] array = text.replace(" ", "\n").split("\n");
+        ArrayList<Codigo> areaCodigo = new ArrayList<>();
+        
+        for (int i = 0; i < array.length-1; i++) {
             Instrucao inst = Instrucao.get(array[i]);
-            Instrucao inst2 = Instrucao.get(array[i+1]);
-            if(inst2 == null){
-                areaCodigo.add(new Codigo((inst), array[i+1]));
-            }else{
+            Instrucao inst2 = Instrucao.get(array[i + 1]);
+            if (inst!= null && inst2 == null) {
+                areaCodigo.add(new Codigo((inst), array[i + 1]));
+            } else if(inst!=null) {
                 areaCodigo.add(new Codigo((inst), null));
             }
         }
         Instrucao inst = Instrucao.get(array[array.length - 1]);
-        if(inst != null) areaCodigo.add(new Codigo((inst), null));
+        if (inst != null) {
+            areaCodigo.add(new Codigo((inst), null));
+        }
+        
+        
+        areaCodigo.forEach((c) -> {
+            System.out.println(c.getCode().toString() + " --- " + String.valueOf(c.getEnd()));
+        });
+        
         return areaCodigo;
     }
-    
-    
+
     public void nextCode() {
         cont++;
         if (cont < codigo.size()) {
@@ -77,30 +84,27 @@ public class Interpretador {
         if (!comparar(Instrucao.INPP)) {
             return;
         }
-        nextCode();
-        alocarMemoria();
         instrucoes();
-        variaveis.forEach(var ->{
-            System.out.println("Memória: " + var.toString());
-        });
-    }
-
-    private void alocarMemoria() {
-        while (comparar(Instrucao.AMEM)) {
-            variaveis.add(Double.NaN);
-            nextCode();
+        
+        for(int i=0; i<variaveis.size(); i++){
+            System.out.println("Memória["+i+"]: " + variaveis.get(i).toString());
         }
     }
 
     private void instrucoes() {
         Double aux1, aux2;
         while (cont < codigo.size()) {
+            nextCode();
+            System.out.println("Linha: " + cont + " Instrucao: "+ atual.getCode().toString() );
+            
             switch (atual.getCode()) {
                 case LEIT:
+                    System.out.print("Leitura: ");
                     String ler = new Scanner(System.in).nextLine();
                     pilha.push(Double.parseDouble(ler));
                     break;
                 case IMPE:
+                    System.out.print("Escrita: ");
                     System.out.println(String.valueOf(pilha.pop()));
                     break;
                 case CRCT:
@@ -227,6 +231,11 @@ public class Interpretador {
                     break;
                 case PARA:
                     return;
+                case AMEM:
+                    for (int i = 0; i < getEnd(); i++) {
+                        variaveis.add(Double.NaN);
+                    }
+                    break;
                 case DMEM:
                     variaveis.set(getEnd(), Double.NaN);
                     break;
